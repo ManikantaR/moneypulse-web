@@ -7,7 +7,7 @@ This guide assumes zero prior Firebase experience.
 1. Open github.com and sign in.
 2. Click New Repository.
 3. Repository name: moneypulse-web.
-4. Select Private (recommended for early phases).
+4. Select Public or Private. Public is fine here because this repo is designed to exclude personal financial data, secrets, and reverse-sync capabilities.
 5. Create repository.
 6. From local machine, run:
 
@@ -91,6 +91,18 @@ Preferred path: Workload Identity Federation. This avoids storing long-lived JSO
 - GCP_SERVICE_ACCOUNT_EMAIL
 - FIREBASE_WEB_APP_ID
 - FIREBASE_VAPID_PUBLIC_KEY
+
+Example `GCP_WORKLOAD_IDENTITY_PROVIDER` format:
+
+```text
+projects/123456789/locations/global/workloadIdentityPools/github/providers/github-oidc
+```
+
+Recommended GitHub attribute condition:
+
+```text
+assertion.repository == 'ManikantaR/moneypulse-web'
+```
 
 ### 4.2 Fallback only: JSON key auth
 
@@ -232,6 +244,66 @@ If using Workload Identity Federation instead of JSON keys:
 1. Confirm `GCP_WORKLOAD_IDENTITY_PROVIDER` and `GCP_SERVICE_ACCOUNT_EMAIL` are set.
 2. Confirm the provider attribute condition restricts access to this repository.
 3. Confirm GitHub environment protection is enabled for production.
+
+## 6.2 End-to-End WIF Setup Commands
+
+These are example commands. Replace placeholder values first.
+
+```bash
+export PROJECT_ID="your-gcp-project-id"
+export PROJECT_NUMBER="your-gcp-project-number"
+export POOL_ID="github"
+export PROVIDER_ID="github-oidc"
+export SERVICE_ACCOUNT_NAME="github-actions-deploy"
+export REPO="ManikantaR/moneypulse-web"
+
+gcloud iam workload-identity-pools create "$POOL_ID" \
+	--project="$PROJECT_ID" \
+	--location="global" \
+	--display-name="GitHub Actions Pool"
+
+gcloud iam workload-identity-pools providers create-oidc "$PROVIDER_ID" \
+	--project="$PROJECT_ID" \
+	--location="global" \
+	--workload-identity-pool="$POOL_ID" \
+	--display-name="GitHub OIDC Provider" \
+	--issuer-uri="https://token.actions.githubusercontent.com" \
+	--attribute-mapping="google.subject=assertion.sub,attribute.repository=assertion.repository,attribute.ref=assertion.ref"
+
+gcloud iam service-accounts create "$SERVICE_ACCOUNT_NAME" \
+	--project="$PROJECT_ID" \
+	--display-name="GitHub Actions Deploy"
+
+gcloud projects add-iam-policy-binding "$PROJECT_ID" \
+	--member="serviceAccount:${SERVICE_ACCOUNT_NAME}@${PROJECT_ID}.iam.gserviceaccount.com" \
+	--role="roles/firebase.admin"
+
+gcloud projects add-iam-policy-binding "$PROJECT_ID" \
+	--member="serviceAccount:${SERVICE_ACCOUNT_NAME}@${PROJECT_ID}.iam.gserviceaccount.com" \
+	--role="roles/cloudfunctions.admin"
+
+gcloud projects add-iam-policy-binding "$PROJECT_ID" \
+	--member="serviceAccount:${SERVICE_ACCOUNT_NAME}@${PROJECT_ID}.iam.gserviceaccount.com" \
+	--role="roles/cloudbuild.builds.editor"
+
+gcloud projects add-iam-policy-binding "$PROJECT_ID" \
+	--member="serviceAccount:${SERVICE_ACCOUNT_NAME}@${PROJECT_ID}.iam.gserviceaccount.com" \
+	--role="roles/artifactregistry.writer"
+
+gcloud iam service-accounts add-iam-policy-binding \
+	"${SERVICE_ACCOUNT_NAME}@${PROJECT_ID}.iam.gserviceaccount.com" \
+	--project="$PROJECT_ID" \
+	--role="roles/iam.workloadIdentityUser" \
+	--member="principalSet://iam.googleapis.com/projects/${PROJECT_NUMBER}/locations/global/workloadIdentityPools/${POOL_ID}/attribute.repository/${REPO}"
+```
+
+Then set GitHub repository secrets:
+
+```text
+FIREBASE_PROJECT_ID=<your project id>
+GCP_WORKLOAD_IDENTITY_PROVIDER=projects/<project-number>/locations/global/workloadIdentityPools/github/providers/github-oidc
+GCP_SERVICE_ACCOUNT_EMAIL=github-actions-deploy@<project-id>.iam.gserviceaccount.com
+```
 
 ## 7. Validate Security Before First Launch
 
