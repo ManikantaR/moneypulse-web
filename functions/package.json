@@ -1,0 +1,23 @@
+{
+  "name": "@moneypulse-web/functions",
+  "private": true,
+  "version": "0.1.0",
+  "main": "lib/index.js",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "serve": "firebase emulators:start --only functions",
+    "deploy": "firebase deploy --only functions",
+    "lint": "eslint src --ext .ts",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "firebase-admin": "^13.0.2",
+    "firebase-functions": "^6.2.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.3",
+    "eslint": "^10.1.0",
+    "vitest": "^4.1.0",
+    "@types/node": "^24.9.0"
+  }
+}

@@ -1,0 +1,9 @@
+node_modules
+.pnpm-store
+.turbo
+.next
+coverage
+.firebase
+.env
+.env.local
+functions/lib
