@@ -50,6 +50,16 @@ Pick:
 - Functions language: TypeScript
 - Hosting public or framework mode: framework-aware (Next.js)
 
+### Should you check "Also set up Firebase Hosting for this app" during Web App registration?
+
+Short answer: leave it unchecked there.
+
+Why:
+
+- We configure Hosting from the repository using `firebase init` and `firebase.json` so it is version-controlled.
+- Enabling Hosting in that app-registration checkbox is optional and does not replace the repo-based setup.
+- Keeping Hosting setup in code makes CI/CD repeatable across environments.
+
 ## 3. Enable Core Firebase Services
 
 In Firebase Console:
