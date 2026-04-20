@@ -1,13 +1,30 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
+    // Default deny — every collection must have an explicit rule below.
     match /{document=**} {
       allow read, write: if false;
     }
 
-    // Example tenant-scoped pattern for future phases
+    // User root document — only the authenticated user whose UID matches
+    // the userAliasId path segment may read or write.
+    match /users/{userAliasId} {
+      allow read, write: if request.auth != null && request.auth.uid == userAliasId;
+    }
+
+    // User-scoped sub-collections — same UID check propagated to all descendants.
     match /users/{userAliasId}/{document=**} {
       allow read, write: if request.auth != null && request.auth.uid == userAliasId;
+    }
+
+    // Sync ingress events — written exclusively by Cloud Functions (Admin SDK
+    // bypasses these rules).  Clients may only read events that belong to them;
+    // client writes are never permitted.
+    match /syncIngressEvents/{eventId} {
+      allow read: if request.auth != null
+                  && ('userAliasId' in resource.data)
+                  && resource.data.userAliasId == request.auth.uid;
+      allow write: if false;
     }
   }
 }
