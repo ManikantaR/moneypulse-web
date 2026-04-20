@@ -37,19 +37,9 @@ jobs:
           workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
           service_account: ${{ secrets.GCP_SERVICE_ACCOUNT_EMAIL }}
 
-      - name: Setup gcloud
-        uses: google-github-actions/setup-gcloud@v2
-
-      - name: Mint Firebase CLI token
-        run: |
-          FIREBASE_TOKEN="$(gcloud auth application-default print-access-token)"
-          if [ -z "$FIREBASE_TOKEN" ]; then
-            echo "Failed to mint Firebase token from ADC" >&2
-            exit 1
-          fi
-          echo "FIREBASE_TOKEN=$FIREBASE_TOKEN" >> "$GITHUB_ENV"
-
       - name: Deploy to Firebase
         env:
           FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
-        run: pnpm dlx firebase-tools@13.35.1 deploy --non-interactive --project "$FIREBASE_PROJECT_ID" --token "$FIREBASE_TOKEN"
+        run: |
+          pnpm dlx firebase-tools@13.35.1 experiments:enable webframeworks
+          pnpm dlx firebase-tools@13.35.1 deploy --non-interactive --project "$FIREBASE_PROJECT_ID"
