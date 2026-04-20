@@ -44,7 +44,13 @@ jobs:
         uses: google-github-actions/setup-gcloud@v2
 
       - name: Mint Firebase CLI token
-        run: echo "FIREBASE_TOKEN=$(gcloud auth print-access-token)" >> "$GITHUB_ENV"
+        run: |
+          FIREBASE_TOKEN="$(gcloud auth application-default print-access-token)"
+          if [ -z "$FIREBASE_TOKEN" ]; then
+            echo "Failed to mint Firebase token from ADC" >&2
+            exit 1
+          fi
+          echo "FIREBASE_TOKEN=$FIREBASE_TOKEN" >> "$GITHUB_ENV"
 
       - name: Deploy to Firebase
         env:
