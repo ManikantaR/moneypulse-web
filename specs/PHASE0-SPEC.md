@@ -27,12 +27,15 @@
 
 ## Security Controls
 
-1. Firestore rules default deny
-2. Enforced auth-based document access by alias user id
+1. Firestore rules default deny — every collection requires an explicit rule; the global `match /{document=**} { allow read, write: if false; }` block provides no collection-level coverage on its own.
+2. User document isolation uses a two-level rule:
+   - `match /users/{userAliasId}` — protects the root profile document (zero sub-segments; not covered by `{document=**}`).
+   - `match /users/{userAliasId}/{document=**}` — protects all sub-collections.
+   - Both gates check `request.auth.uid == userAliasId`.
 3. Functions ingress requires:
-- HMAC signature header
-- Timestamp freshness window
-- Idempotency key
+   - HMAC signature header
+   - Timestamp freshness window
+   - Idempotency key
 4. Secrets stored in Google Secret Manager or Firebase runtime config
 5. App Check enforced in production after staging validation
 
