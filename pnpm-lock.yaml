@@ -8,6 +8,9 @@ importers:
 
   .:
     devDependencies:
+      simple-git-hooks:
+        specifier: ^2.13.1
+        version: 2.13.1
       turbo:
         specifier: ^2.8.20
         version: 2.9.6
@@ -2859,6 +2862,10 @@ packages:
   siginfo@2.0.0:
     resolution: {integrity: sha512-ybx0WO1/8bSBLEWXZvEd7gMW3Sn3JFlW3TvX1nREbDLRNQNaeNN8WK0meBwPdAaOI7TtRRRJn/Es1zhrrCHu7g==}
 
+  simple-git-hooks@2.13.1:
+    resolution: {integrity: sha512-WszCLXwT4h2k1ufIXAgsbiTOazqqevFCIncOuUBZJ91DdvWcC5+OFkluWRQPrcuSYd8fjq+o2y1QfWqYMoAToQ==}
+    hasBin: true
+
   sonner@2.0.7:
     resolution: {integrity: sha512-W6ZN4p58k8aDKA4XPcx2hpIQXBRAgyiWVkYhT7CvK6D3iAu7xjvVyhQHg2/iaKJZ1XVJ4r7XuwGL+WGEK37i9w==}
     peerDependencies:
@@ -4972,7 +4979,7 @@ snapshots:
       eslint: 10.2.1
       eslint-import-resolver-node: 0.3.10
       eslint-import-resolver-typescript: 3.10.1(eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.58.2(eslint@10.2.1)(typescript@5.9.3))(eslint@10.2.1))(eslint@10.2.1)
-      eslint-plugin-import: 2.32.0(@typescript-eslint/parser@8.58.2(eslint@10.2.1)(typescript@5.9.3))(eslint-import-resolver-typescript@3.10.1)(eslint@10.2.1)
+      eslint-plugin-import: 2.32.0(@typescript-eslint/parser@8.58.2(eslint@10.2.1)(typescript@5.9.3))(eslint-import-resolver-typescript@3.10.1(eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.58.2(eslint@10.2.1)(typescript@5.9.3))(eslint@10.2.1))(eslint@10.2.1))(eslint@10.2.1)
       eslint-plugin-jsx-a11y: 6.10.2(eslint@10.2.1)
       eslint-plugin-react: 7.37.5(eslint@10.2.1)
       eslint-plugin-react-hooks: 7.1.1(eslint@10.2.1)
@@ -5005,7 +5012,7 @@ snapshots:
       tinyglobby: 0.2.16
       unrs-resolver: 1.11.1
     optionalDependencies:
-      eslint-plugin-import: 2.32.0(@typescript-eslint/parser@8.58.2(eslint@10.2.1)(typescript@5.9.3))(eslint-import-resolver-typescript@3.10.1)(eslint@10.2.1)
+      eslint-plugin-import: 2.32.0(@typescript-eslint/parser@8.58.2(eslint@10.2.1)(typescript@5.9.3))(eslint-import-resolver-typescript@3.10.1(eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.58.2(eslint@10.2.1)(typescript@5.9.3))(eslint@10.2.1))(eslint@10.2.1))(eslint@10.2.1)
     transitivePeerDependencies:
       - supports-color
 
@@ -5020,7 +5027,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.58.2(eslint@10.2.1)(typescript@5.9.3))(eslint-import-resolver-typescript@3.10.1)(eslint@10.2.1):
+  eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.58.2(eslint@10.2.1)(typescript@5.9.3))(eslint-import-resolver-typescript@3.10.1(eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.58.2(eslint@10.2.1)(typescript@5.9.3))(eslint@10.2.1))(eslint@10.2.1))(eslint@10.2.1):
     dependencies:
       '@rtsao/scc': 1.1.0
       array-includes: 3.1.9
@@ -6477,6 +6484,8 @@ snapshots:
       side-channel-weakmap: 1.0.2
 
   siginfo@2.0.0: {}
+
+  simple-git-hooks@2.13.1: {}
 
   sonner@2.0.7(react-dom@19.2.5(react@19.2.5))(react@19.2.5):
     dependencies:
