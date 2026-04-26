@@ -65,6 +65,27 @@ Suggested document responsibilities:
 4. Access denied if alias profile missing or bootstrap incomplete
 5. App Check scope documented for future protected browser calls
 
+## Firestore Rules — Data Isolation Contract
+
+| Collection | Client read | Client write | Write authority |
+| --- | --- | --- | --- |
+| `/users/{userAliasId}` | Own UID only | Own UID only | Client / Admin SDK |
+| `/users/{userAliasId}/{document=**}` | Own UID only | Own UID only | Client / Admin SDK |
+| `syncIngressEvents/{eventId}` | Own UID only (field existence check) | Never | Cloud Functions Admin SDK only |
+
+**`syncIngressEvents` read rule:**
+
+```firestore-rules
+allow read: if request.auth != null
+            && ('userAliasId' in resource.data)
+            && resource.data.userAliasId == request.auth.uid;
+allow write: if false;
+```
+
+The `'userAliasId' in resource.data` existence check is required so documents with a missing or null field fail closed rather than relying on `null == uid` falsy evaluation.
+
+Admin SDK (Cloud Functions) bypasses all Firestore client rules; ingestion correctness is enforced by HMAC signature verification in the function handler, not in rules.
+
 ## Validation
 
 - register with valid email/password
