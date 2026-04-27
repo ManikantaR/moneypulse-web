@@ -1,13 +1,33 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
+    // Default deny — never remove this
     match /{document=**} {
       allow read, write: if false;
     }
 
-    // Example tenant-scoped pattern for future phases
-    match /users/{userAliasId}/{document=**} {
+    // Projected collections — written by ingestSyncEvent function only
+    // Browser clients may read their own projected data but never write
+    match /syncIngressEvents/{eventId} {
+      allow read: if false;
+      allow write: if false;
+    }
+
+    // User alias profile — created and owned by the authenticated user
+    match /users/{userAliasId} {
       allow read, write: if request.auth != null && request.auth.uid == userAliasId;
+    }
+
+    // Cloud-only overlays — user-owned personalization (preferences, saved filters, etc.)
+    // Never contains projected transaction data
+    match /users/{userAliasId}/overlays/{overlayId} {
+      allow read, write: if request.auth != null && request.auth.uid == userAliasId;
+    }
+
+    // Projected transactions — read-only from browser, written by sync function only
+    match /transactions/{txnId} {
+      allow read: if request.auth != null && resource.data.userAliasId == request.auth.uid;
+      allow write: if false;
     }
   }
 }

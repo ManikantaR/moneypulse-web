@@ -5,6 +5,9 @@ const nextConfig: NextConfig = {
   reactStrictMode: true,
   turbopack: {
     root: path.resolve(process.cwd(), '../..'),
+    resolveAlias: {
+      '@': path.resolve(process.cwd(), './src'),
+    },
   },
 };
 
