@@ -13,9 +13,5 @@ export default function RootPage() {
     router.replace(user ? '/dashboard' : '/login');
   }, [user, loading, router]);
 
-  return (
-    <div className="flex min-h-svh items-center justify-center">
-      <div className="border-primary h-8 w-8 animate-spin rounded-full border-2 border-t-transparent" />
-    </div>
-  );
+  return null;
 }

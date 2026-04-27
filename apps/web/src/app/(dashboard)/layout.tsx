@@ -14,15 +14,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
     }
   }, [user, loading, router]);
 
-  if (loading) {
-    return (
-      <div className="flex min-h-svh items-center justify-center">
-        <div className="border-primary h-8 w-8 animate-spin rounded-full border-2 border-t-transparent" />
-      </div>
-    );
-  }
-
-  if (!user) return null;
+  if (!loading && !user) return null;
 
   return <div className="min-h-svh">{children}</div>;
 }
