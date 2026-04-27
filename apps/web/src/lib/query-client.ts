@@ -7,8 +7,9 @@ export function getQueryClient(): QueryClient {
     _queryClient = new QueryClient({
       defaultOptions: {
         queries: {
-          staleTime: 5 * 60 * 1000, // 5 minutes
-          retry: 1,
+          staleTime: 5 * 60 * 1000,
+          retry: false,            // never retry — Firestore errors are not transient
+          refetchOnWindowFocus: false, // don't cycle loading states on tab focus
         },
       },
     });
