@@ -23,15 +23,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(firebaseAuth(), async (firebaseUser) => {
+    const unsubscribe = onAuthStateChanged(firebaseAuth(), (firebaseUser) => {
       setUser(firebaseUser);
+      setLoading(false);
       if (firebaseUser) {
-        const userProfile = await bootstrapProfile(firebaseDb(), firebaseUser.uid);
-        setProfile(userProfile);
+        bootstrapProfile(firebaseDb(), firebaseUser.uid)
+          .then(setProfile)
+          .catch(() => {});
       } else {
         setProfile(null);
       }
-      setLoading(false);
     });
     return unsubscribe;
   }, []);
