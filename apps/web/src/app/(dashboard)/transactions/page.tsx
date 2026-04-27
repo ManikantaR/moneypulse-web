@@ -19,7 +19,7 @@ export default function TransactionsPage() {
   const hasMore = visibleTransactions.length < data.length;
 
   return (
-    <main className="mx-auto max-w-4xl p-4 sm:p-6">
+    <div className="mx-auto max-w-4xl p-4 sm:p-6">
       <h1 className="mb-4 text-2xl font-semibold">Transactions</h1>
 
       <div className="mb-4">
@@ -77,6 +77,6 @@ export default function TransactionsPage() {
           </p>
         </>
       )}
-    </main>
+    </div>
   );
 }

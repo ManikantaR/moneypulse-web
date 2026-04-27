@@ -1,7 +1,7 @@
 'use client';
 
 import { createContext, useEffect, useState, type ReactNode } from 'react';
-import { onAuthStateChanged, type User } from 'firebase/auth';
+import { onAuthStateChanged, signOut as firebaseSignOut, type User } from 'firebase/auth';
 import { firebaseAuth, firebaseDb } from '@/lib/firebase';
 import { bootstrapProfile, type UserProfile } from './profile';
 
@@ -9,12 +9,14 @@ export interface AuthContextValue {
   user: User | null;
   loading: boolean;
   profile: UserProfile | null;
+  signOut: () => Promise<void>;
 }
 
 export const AuthContext = createContext<AuthContextValue>({
   user: null,
   loading: true,
   profile: null,
+  signOut: async () => {},
 });
 
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -37,8 +39,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return unsubscribe;
   }, []);
 
+  const signOut = () => firebaseSignOut(firebaseAuth());
+
   return (
-    <AuthContext value={{ user, loading, profile }}>
+    <AuthContext value={{ user, loading, profile, signOut }}>
       {children}
     </AuthContext>
   );

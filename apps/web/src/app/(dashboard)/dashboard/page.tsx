@@ -58,7 +58,7 @@ export default function DashboardPage() {
   const recentTransactions = transactions.slice(0, 10);
 
   return (
-    <main className="mx-auto max-w-4xl p-4 sm:p-6">
+    <div className="mx-auto max-w-4xl p-4 sm:p-6">
       <div className="mb-4">
         <FreshnessBanner />
       </div>
@@ -140,6 +140,6 @@ export default function DashboardPage() {
           </div>
         )}
       </section>
-    </main>
+    </div>
   );
 }
