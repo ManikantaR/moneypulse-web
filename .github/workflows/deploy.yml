@@ -46,6 +46,4 @@ jobs:
       - name: Deploy to Firebase
         env:
           FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
-        run: |
-          pnpm dlx firebase-tools@13.35.1 experiments:enable webframeworks
-          pnpm dlx firebase-tools@13.35.1 deploy --only firestore,functions,hosting --non-interactive --project "$FIREBASE_PROJECT_ID"
+        run: pnpm dlx firebase-tools@13.35.1 deploy --only firestore,functions,hosting --non-interactive --project "$FIREBASE_PROJECT_ID"
