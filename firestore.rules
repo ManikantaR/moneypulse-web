@@ -35,5 +35,11 @@ service cloud.firestore {
       allow read: if request.auth != null && resource.data.userAliasId == request.auth.uid;
       allow write: if false;
     }
+
+    // Projected budgets — read-only from browser, written by sync function only
+    match /budgets/{budgetDocId} {
+      allow read: if request.auth != null && resource.data.userAliasId == request.auth.uid;
+      allow write: if false;
+    }
   }
 }

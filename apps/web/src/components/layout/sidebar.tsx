@@ -11,6 +11,8 @@ import {
   ChevronLeft,
   ChevronRight,
   LogOut,
+  Tag,
+  Wallet,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/lib/auth/use-auth';
@@ -18,6 +20,8 @@ import { useAuth } from '@/lib/auth/use-auth';
 const navItems = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/transactions', label: 'Transactions', icon: ArrowLeftRight },
+  { href: '/categories', label: 'Categories', icon: Tag },
+  { href: '/budgets', label: 'Budgets', icon: Wallet },
   { href: '/sync-status', label: 'Cloud Sync', icon: CloudUpload },
 ];
 

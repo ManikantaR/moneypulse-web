@@ -8,6 +8,15 @@ export interface CategoryDoc {
   userAliasId: string;
 }
 
+export interface BudgetDoc {
+  id: string;
+  budgetId: string;
+  categoryId: string | null;
+  amountCents: number;
+  period: 'monthly' | 'weekly';
+  userAliasId: string;
+}
+
 export interface TransactionDoc {
   id: string;
   transactionAliasId: string;

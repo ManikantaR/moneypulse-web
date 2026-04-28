@@ -38,9 +38,9 @@ export function TransactionRow({ transaction, categoryMap }: TransactionRowProps
   return (
     <div className="flex items-center justify-between gap-4 border-b py-3 last:border-0">
       <div className="flex flex-col gap-0.5 min-w-0">
-        <span className="text-sm font-medium truncate">
-          {merchantName ?? formatDate(date)}
-        </span>
+        {merchantName && (
+          <span className="text-sm font-medium truncate">{merchantName}</span>
+        )}
         <div className="flex gap-1.5 flex-wrap items-center">
           <span className="text-xs text-muted-foreground">{formatDate(date)}</span>
           <span className="rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground">

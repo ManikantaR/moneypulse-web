@@ -35,6 +35,14 @@
       ]
     },
     {
+      "collectionGroup": "budgets",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "userAliasId", "order": "ASCENDING" },
+        { "fieldPath": "categoryId", "order": "ASCENDING" }
+      ]
+    },
+    {
       "collectionGroup": "syncIngressEvents",
       "queryScope": "COLLECTION",
       "fields": [
