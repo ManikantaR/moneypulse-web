@@ -6,7 +6,7 @@ import { QueryClientProvider } from '@tanstack/react-query';
 import { useAuth } from '@/lib/auth/use-auth';
 import { useIdleLogout } from '@/lib/auth/use-idle-logout';
 import { getQueryClient } from '@/lib/query-client';
-import { Sidebar } from '@/components/layout/sidebar';
+import { Sidebar, MobileNav } from '@/components/layout/sidebar';
 import { IdleWarning } from '@/components/auth/idle-warning';
 
 function DashboardShell({ children }: { children: ReactNode }) {
@@ -16,7 +16,8 @@ function DashboardShell({ children }: { children: ReactNode }) {
   return (
     <div className="flex min-h-svh">
       <Sidebar />
-      <main className="flex-1 overflow-auto">{children}</main>
+      <main className="flex-1 overflow-auto pb-16 md:pb-0">{children}</main>
+      <MobileNav />
       {warningVisible && <IdleWarning secondsLeft={secondsLeft} onStay={reset} />}
     </div>
   );

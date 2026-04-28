@@ -150,6 +150,13 @@ export const ingestSyncEvent = onRequest(
     // Uses Firebase Admin SDK so Firestore rules are bypassed (server-side write).
     if (req.body.eventType === 'transaction.projected.v1') {
       await fanOutTransaction(db, req.body);
+      const uid = typeof req.body.userAliasId === 'string' ? req.body.userAliasId : null;
+      if (uid) {
+        await db.collection('users').doc(uid).set(
+          { lastSyncAt: FieldValue.serverTimestamp() },
+          { merge: true },
+        );
+      }
     }
 
     res.status(202).json({

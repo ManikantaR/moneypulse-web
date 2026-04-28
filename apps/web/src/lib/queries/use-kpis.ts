@@ -1,7 +1,7 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
-import { collection, query, where, getDocs } from 'firebase/firestore';
+import { collection, query, where, orderBy, getDocs } from 'firebase/firestore';
 import { firebaseDb } from '@/lib/firebase';
 import { useAuth } from '@/lib/auth/use-auth';
 import type { TransactionDoc } from '@/lib/types/firestore';
@@ -37,6 +37,7 @@ export function useKpis(monthYear: string): KpiResult {
         where('userAliasId', '==', uid),
         where('date', '>=', startDate),
         where('date', '<=', endDate),
+        orderBy('date', 'desc'),
       );
       const snapshot = await getDocs(q);
       return snapshot.docs.map((doc) => ({

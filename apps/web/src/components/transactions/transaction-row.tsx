@@ -36,11 +36,9 @@ export function TransactionRow({ transaction }: TransactionRowProps) {
       <div className="flex flex-col gap-0.5">
         <span className="text-sm">{formatDate(date)}</span>
         <div className="flex gap-1.5">
-          {categoryId && (
-            <span className="rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground">
-              {categoryId}
-            </span>
-          )}
+          <span className="rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground">
+            {categoryId ? 'Categorized' : 'Uncategorized'}
+          </span>
           {isManual && (
             <span className="rounded-full bg-blue-100 px-2 py-0.5 text-xs text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">
               manual

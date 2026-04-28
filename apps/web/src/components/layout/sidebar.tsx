@@ -21,6 +21,7 @@ const navItems = [
   { href: '/sync-status', label: 'Cloud Sync', icon: CloudUpload },
 ];
 
+/** Desktop sidebar — hidden on mobile */
 export function Sidebar() {
   const pathname = usePathname();
   const [collapsed, setCollapsed] = useState(false);
@@ -29,7 +30,7 @@ export function Sidebar() {
   return (
     <aside
       className={cn(
-        'flex h-screen flex-col border-r border-border bg-card transition-all duration-300',
+        'hidden md:flex h-screen flex-col border-r border-border bg-card transition-all duration-300',
         collapsed ? 'w-[60px]' : 'w-[220px]',
       )}
     >
@@ -100,5 +101,39 @@ export function Sidebar() {
         {collapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
       </button>
     </aside>
+  );
+}
+
+/** Mobile bottom nav bar — visible only on mobile */
+export function MobileNav() {
+  const pathname = usePathname();
+  const { signOut } = useAuth();
+
+  return (
+    <nav className="fixed bottom-0 inset-x-0 z-40 flex md:hidden border-t border-border bg-card">
+      {navItems.map(({ href, label, icon: Icon }) => {
+        const isActive = pathname === href || pathname.startsWith(href + '/');
+        return (
+          <Link
+            key={href}
+            href={href}
+            className={cn(
+              'flex flex-1 flex-col items-center justify-center gap-1 py-2 text-[10px] font-medium transition-colors',
+              isActive ? 'text-primary' : 'text-muted-foreground',
+            )}
+          >
+            <Icon className="h-5 w-5" />
+            {label}
+          </Link>
+        );
+      })}
+      <button
+        onClick={() => signOut()}
+        className="flex flex-1 flex-col items-center justify-center gap-1 py-2 text-[10px] font-medium text-muted-foreground"
+      >
+        <LogOut className="h-5 w-5" />
+        Sign out
+      </button>
+    </nav>
   );
 }

@@ -7,9 +7,9 @@ service cloud.firestore {
     }
 
     // Projected collections — written by ingestSyncEvent function only
-    // Browser clients may read their own projected data but never write
+    // Browser clients may read their own ingress events (for sync freshness) but never write
     match /syncIngressEvents/{eventId} {
-      allow read: if false;
+      allow read: if request.auth != null && resource.data.userAliasId == request.auth.uid;
       allow write: if false;
     }
 

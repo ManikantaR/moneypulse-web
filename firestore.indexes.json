@@ -25,6 +25,14 @@
         { "fieldPath": "isCredit", "order": "ASCENDING" },
         { "fieldPath": "date", "order": "DESCENDING" }
       ]
+    },
+    {
+      "collectionGroup": "syncIngressEvents",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "userAliasId", "order": "ASCENDING" },
+        { "fieldPath": "receivedAt", "order": "DESCENDING" }
+      ]
     }
   ],
   "fieldOverrides": []

@@ -1,7 +1,7 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
-import { doc, getDoc, type Timestamp } from 'firebase/firestore';
+import { doc, getDoc, collection, query, where, orderBy, limit, getDocs, type Timestamp } from 'firebase/firestore';
 import { firebaseDb } from '@/lib/firebase';
 import { useAuth } from '@/lib/auth/use-auth';
 
@@ -22,11 +22,23 @@ export function useSyncFreshness(): SyncFreshnessResult {
     queryFn: async (): Promise<Date | null> => {
       if (!uid) return null;
       const db = firebaseDb();
+
+      // Primary: user doc lastSyncAt (written by function on each delivery)
       const userDoc = await getDoc(doc(db, 'users', uid));
-      if (!userDoc.exists()) return null;
-      const raw = userDoc.data()?.lastSyncAt as Timestamp | undefined;
-      if (!raw) return null;
-      return raw.toDate();
+      const lastSyncRaw = userDoc.data()?.lastSyncAt as Timestamp | undefined;
+      if (lastSyncRaw) return lastSyncRaw.toDate();
+
+      // Fallback: most recent ingress event for this user
+      const q = query(
+        collection(db, 'syncIngressEvents'),
+        where('userAliasId', '==', uid),
+        orderBy('receivedAt', 'desc'),
+        limit(1),
+      );
+      const snap = await getDocs(q);
+      if (snap.empty) return null;
+      const receivedAt = snap.docs[0]!.data().receivedAt as Timestamp | undefined;
+      return receivedAt ? receivedAt.toDate() : null;
     },
   });
 
