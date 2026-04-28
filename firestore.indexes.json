@@ -27,6 +27,14 @@
       ]
     },
     {
+      "collectionGroup": "categories",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "userAliasId", "order": "ASCENDING" },
+        { "fieldPath": "name", "order": "ASCENDING" }
+      ]
+    },
+    {
       "collectionGroup": "syncIngressEvents",
       "queryScope": "COLLECTION",
       "fields": [

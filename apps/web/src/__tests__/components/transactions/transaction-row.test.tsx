@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 import { TransactionRow } from '@/components/transactions/transaction-row';
-import type { TransactionDoc } from '@/lib/types/firestore';
+import type { TransactionDoc, CategoryDoc } from '@/lib/types/firestore';
 
 vi.mock('@/lib/firebase', () => ({
   firebaseDb: vi.fn(() => ({})),
@@ -47,8 +47,16 @@ describe('TransactionRow', () => {
   });
 
   it('renders category badge when categoryId is present', () => {
+    const categoryMap = new Map<string, CategoryDoc>([
+      ['groceries', { id: 'doc-1', categoryId: 'groceries', name: 'Groceries', icon: '🛒', color: '#00ff00', parentCategoryId: null, userAliasId: 'user-alias-1' }],
+    ]);
+    render(<TransactionRow transaction={baseTransaction} categoryMap={categoryMap} />);
+    expect(screen.getByText('🛒 Groceries')).toBeInTheDocument();
+  });
+
+  it('shows Categorized fallback when categoryMap not provided', () => {
     render(<TransactionRow transaction={baseTransaction} />);
-    expect(screen.getByText('groceries')).toBeInTheDocument();
+    expect(screen.getByText('Categorized')).toBeInTheDocument();
   });
 
   it('renders manual badge when isManual is true', () => {

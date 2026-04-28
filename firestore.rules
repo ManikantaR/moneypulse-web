@@ -29,5 +29,11 @@ service cloud.firestore {
       allow read: if request.auth != null && resource.data.userAliasId == request.auth.uid;
       allow write: if false;
     }
+
+    // Projected categories — read-only from browser, written by sync function only
+    match /categories/{catId} {
+      allow read: if request.auth != null && resource.data.userAliasId == request.auth.uid;
+      allow write: if false;
+    }
   }
 }

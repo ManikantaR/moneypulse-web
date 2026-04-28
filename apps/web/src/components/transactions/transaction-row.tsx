@@ -1,10 +1,11 @@
 'use client';
 
 import { cn } from '@/lib/utils';
-import type { TransactionDoc } from '@/lib/types/firestore';
+import type { TransactionDoc, CategoryDoc } from '@/lib/types/firestore';
 
 interface TransactionRowProps {
   transaction: TransactionDoc;
+  categoryMap?: Map<string, CategoryDoc>;
 }
 
 function formatCents(cents: number): string {
@@ -15,7 +16,6 @@ function formatCents(cents: number): string {
 }
 
 function formatDate(iso: string): string {
-  // Parse as local date to avoid TZ shift
   const datePart = iso.split('T')[0] ?? iso;
   const parts = datePart.split('-').map(Number);
   const year = parts[0]!;
@@ -28,16 +28,18 @@ function formatDate(iso: string): string {
   });
 }
 
-export function TransactionRow({ transaction }: TransactionRowProps) {
+export function TransactionRow({ transaction, categoryMap }: TransactionRowProps) {
   const { date, amountCents, isCredit, isManual, categoryId } = transaction;
+  const category = categoryId ? categoryMap?.get(categoryId) : undefined;
+  const categoryLabel = category?.name ?? (categoryId ? 'Categorized' : 'Uncategorized');
 
   return (
     <div className="flex items-center justify-between gap-4 border-b py-3 last:border-0">
       <div className="flex flex-col gap-0.5">
         <span className="text-sm">{formatDate(date)}</span>
-        <div className="flex gap-1.5">
+        <div className="flex gap-1.5 flex-wrap">
           <span className="rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground">
-            {categoryId ? 'Categorized' : 'Uncategorized'}
+            {category?.icon ? `${category.icon} ${category.name}` : categoryLabel}
           </span>
           {isManual && (
             <span className="rounded-full bg-blue-100 px-2 py-0.5 text-xs text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">
@@ -48,10 +50,8 @@ export function TransactionRow({ transaction }: TransactionRowProps) {
       </div>
       <span
         className={cn(
-          'text-sm font-semibold tabular-nums',
-          isCredit
-            ? 'text-green-600 dark:text-green-400'
-            : 'text-destructive',
+          'text-sm font-semibold tabular-nums shrink-0',
+          isCredit ? 'text-green-600 dark:text-green-400' : 'text-destructive',
         )}
         data-testid="amount"
       >

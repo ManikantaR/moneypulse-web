@@ -9,6 +9,7 @@ import { EmptyState } from '@/components/dashboard/empty-state';
 import { TransactionRow } from '@/components/transactions/transaction-row';
 import { useKpis } from '@/lib/queries/use-kpis';
 import { useTransactionsResult } from '@/lib/queries/use-transactions';
+import { useCategoryMap } from '@/lib/queries/use-categories';
 
 function getCurrentMonthYear(): string {
   const now = new Date();
@@ -42,6 +43,7 @@ export default function DashboardPage() {
 
   // KPIs for selected month
   const kpis = useKpis(monthYear);
+  const categoryMap = useCategoryMap();
 
   // Last 10 transactions for the selected month (no filter = all for that month)
   const startDate = `${monthYear}-01`;
@@ -135,7 +137,7 @@ export default function DashboardPage() {
         {!txLoading && !isEmpty && (
           <div className="rounded-xl border bg-card p-4">
             {recentTransactions.map((txn) => (
-              <TransactionRow key={txn.id} transaction={txn} />
+              <TransactionRow key={txn.id} transaction={txn} categoryMap={categoryMap} />
             ))}
           </div>
         )}

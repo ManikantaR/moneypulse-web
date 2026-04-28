@@ -5,6 +5,7 @@ import { FilterBar } from '@/components/transactions/filter-bar';
 import { TransactionRow } from '@/components/transactions/transaction-row';
 import { EmptyState } from '@/components/dashboard/empty-state';
 import { useTransactionsResult, type TransactionFilters } from '@/lib/queries/use-transactions';
+import { useCategoryMap } from '@/lib/queries/use-categories';
 import type { Metadata } from 'next';
 
 const PAGE_SIZE = 50;
@@ -15,6 +16,7 @@ export default function TransactionsPage() {
   const [page, setPage] = useState(1);
 
   const { data, isLoading, isError, isEmpty } = useTransactionsResult(filters);
+  const categoryMap = useCategoryMap();
   const visibleTransactions = data.slice(0, page * PAGE_SIZE);
   const hasMore = visibleTransactions.length < data.length;
 
@@ -56,7 +58,7 @@ export default function TransactionsPage() {
         <>
           <div className="rounded-xl border bg-card p-4">
             {visibleTransactions.map((txn) => (
-              <TransactionRow key={txn.id} transaction={txn} />
+              <TransactionRow key={txn.id} transaction={txn} categoryMap={categoryMap} />
             ))}
           </div>
 

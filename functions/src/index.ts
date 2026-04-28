@@ -58,6 +58,25 @@ function isAlreadyExistsError(error: unknown): boolean {
     : error.message.toLowerCase().includes('already exists');
 }
 
+async function fanOutCategory(
+  db: ReturnType<typeof getFirestore>,
+  body: Record<string, unknown>,
+): Promise<void> {
+  const categoryId = typeof body.categoryId === 'string' ? body.categoryId : null;
+  const userAliasId = typeof body.userAliasId === 'string' ? body.userAliasId : null;
+  if (!categoryId || !userAliasId) return;
+
+  await db.collection('categories').doc(`${userAliasId}_${categoryId}`).set({
+    categoryId,
+    name: typeof body.name === 'string' ? body.name : null,
+    icon: typeof body.icon === 'string' ? body.icon : null,
+    color: typeof body.color === 'string' ? body.color : null,
+    parentCategoryId: typeof body.parentCategoryId === 'string' ? body.parentCategoryId : null,
+    userAliasId,
+    syncedAt: FieldValue.serverTimestamp(),
+  });
+}
+
 async function fanOutTransaction(
   db: ReturnType<typeof getFirestore>,
   body: Record<string, unknown>,
@@ -148,7 +167,9 @@ export const ingestSyncEvent = onRequest(
 
     // Fan-out: project transaction events into the queryable transactions collection.
     // Uses Firebase Admin SDK so Firestore rules are bypassed (server-side write).
-    if (req.body.eventType === 'transaction.projected.v1') {
+    if (req.body.eventType === 'category.projected.v1') {
+      await fanOutCategory(db, req.body);
+    } else if (req.body.eventType === 'transaction.projected.v1') {
       await fanOutTransaction(db, req.body);
       const uid = typeof req.body.userAliasId === 'string' ? req.body.userAliasId : null;
       if (uid) {
