@@ -2,6 +2,7 @@ node_modules
 .pnpm-store
 .turbo
 .next
+apps/web/out
 coverage
 .firebase
 .env
