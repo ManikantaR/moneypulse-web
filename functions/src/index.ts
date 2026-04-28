@@ -58,6 +58,28 @@ function isAlreadyExistsError(error: unknown): boolean {
     : error.message.toLowerCase().includes('already exists');
 }
 
+async function fanOutTransaction(
+  db: ReturnType<typeof getFirestore>,
+  body: Record<string, unknown>,
+): Promise<void> {
+  const txnAliasId = typeof body.transactionAliasId === 'string' ? body.transactionAliasId : null;
+  const userAliasId = typeof body.userAliasId === 'string' ? body.userAliasId : null;
+
+  if (!txnAliasId || !userAliasId) return;
+
+  await db.collection('transactions').doc(txnAliasId).set({
+    transactionAliasId: txnAliasId,
+    accountAliasId: typeof body.accountAliasId === 'string' ? body.accountAliasId : null,
+    amountCents: typeof body.amountCents === 'number' ? body.amountCents : 0,
+    date: typeof body.date === 'string' ? body.date.slice(0, 10) : null,
+    categoryId: typeof body.categoryId === 'string' ? body.categoryId : null,
+    isCredit: body.isCredit === true,
+    isManual: body.isManual === true,
+    userAliasId,
+    syncedAt: FieldValue.serverTimestamp(),
+  });
+}
+
 export const health = onRequest((req, res) => {
   res.status(200).json({ ok: true, service: 'moneypulse-web-functions' });
 });
@@ -122,6 +144,12 @@ export const ingestSyncEvent = onRequest(
       }
 
       throw error;
+    }
+
+    // Fan-out: project transaction events into the queryable transactions collection.
+    // Uses Firebase Admin SDK so Firestore rules are bypassed (server-side write).
+    if (req.body.eventType === 'transaction.projected.v1') {
+      await fanOutTransaction(db, req.body);
     }
 
     res.status(202).json({

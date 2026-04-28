@@ -1,10 +1,11 @@
 'use client';
 
-import type { Metadata } from 'next';
 import { useSyncStats, type SyncAuditLogEntry } from '@/lib/hooks/useSyncStats';
+import { useAuth } from '@/lib/auth/use-auth';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
+import { Copy, Check } from 'lucide-react';
 
 // StatCard mirrors the pattern described in the ai-logs dashboard spec.
 function StatCard({
@@ -48,10 +49,19 @@ function truncate(str: string, len = 12): string {
 }
 
 export default function SyncStatusPage() {
+  const { user } = useAuth();
   const { data, isLoading, error, refetch } = useSyncStats();
   const [backfillUserId, setBackfillUserId] = useState('');
   const [backfillStatus, setBackfillStatus] = useState<string | null>(null);
   const [isBackfilling, setIsBackfilling] = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  function copyUid() {
+    if (!user?.uid) return;
+    navigator.clipboard.writeText(user.uid);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  }
 
   const apiBase = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001';
 
@@ -110,6 +120,30 @@ export default function SyncStatusPage() {
           Outbox pipeline health — auto-refreshes every 30 s
         </p>
       </div>
+
+      {/* Your Firebase UID — copy this into MoneyPulse local app to link accounts */}
+      {user?.uid && (
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium">Your Firebase UID</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-xs text-muted-foreground mb-2">
+              Copy this into MoneyPulse → Cloud Sync → "Link Firebase Account" to connect your local data.
+            </p>
+            <div className="flex items-center gap-2 rounded-md border bg-muted/30 px-3 py-2">
+              <span className="flex-1 font-mono text-xs break-all">{user.uid}</span>
+              <button
+                onClick={copyUid}
+                title="Copy UID"
+                className="shrink-0 rounded p-1 text-muted-foreground hover:text-foreground transition-colors"
+              >
+                {copied ? <Check className="h-4 w-4 text-green-500" /> : <Copy className="h-4 w-4" />}
+              </button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Stat Cards */}
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
