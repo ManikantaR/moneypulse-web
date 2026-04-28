@@ -23,7 +23,7 @@ const baseTransaction: TransactionDoc = {
 describe('TransactionRow', () => {
   it('renders the formatted date', () => {
     render(<TransactionRow transaction={baseTransaction} />);
-    expect(screen.getByText('Apr 15, 2026')).toBeInTheDocument();
+    expect(screen.getAllByText('Apr 15, 2026').length).toBeGreaterThanOrEqual(1);
   });
 
   it('renders the formatted amount', () => {

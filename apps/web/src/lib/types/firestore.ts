@@ -9,12 +9,13 @@ export interface CategoryDoc {
 }
 
 export interface TransactionDoc {
-  id: string; // Firestore doc ID
+  id: string;
   transactionAliasId: string;
   accountAliasId: string;
   amountCents: number;
-  date: string; // ISO date string
+  date: string;
   categoryId: string | null;
+  merchantName: string | null;
   isCredit: boolean;
   isManual: boolean;
   userAliasId: string;

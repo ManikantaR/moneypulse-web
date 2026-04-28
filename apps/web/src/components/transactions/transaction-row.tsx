@@ -29,17 +29,22 @@ function formatDate(iso: string): string {
 }
 
 export function TransactionRow({ transaction, categoryMap }: TransactionRowProps) {
-  const { date, amountCents, isCredit, isManual, categoryId } = transaction;
+  const { date, amountCents, isCredit, isManual, categoryId, merchantName } = transaction;
   const category = categoryId ? categoryMap?.get(categoryId) : undefined;
-  const categoryLabel = category?.name ?? (categoryId ? 'Categorized' : 'Uncategorized');
+  const categoryLabel = category?.icon
+    ? `${category.icon} ${category.name}`
+    : category?.name ?? (categoryId ? 'Categorized' : 'Uncategorized');
 
   return (
     <div className="flex items-center justify-between gap-4 border-b py-3 last:border-0">
-      <div className="flex flex-col gap-0.5">
-        <span className="text-sm">{formatDate(date)}</span>
-        <div className="flex gap-1.5 flex-wrap">
+      <div className="flex flex-col gap-0.5 min-w-0">
+        <span className="text-sm font-medium truncate">
+          {merchantName ?? formatDate(date)}
+        </span>
+        <div className="flex gap-1.5 flex-wrap items-center">
+          <span className="text-xs text-muted-foreground">{formatDate(date)}</span>
           <span className="rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground">
-            {category?.icon ? `${category.icon} ${category.name}` : categoryLabel}
+            {categoryLabel}
           </span>
           {isManual && (
             <span className="rounded-full bg-blue-100 px-2 py-0.5 text-xs text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">

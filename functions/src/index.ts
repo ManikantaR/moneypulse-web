@@ -92,6 +92,7 @@ async function fanOutTransaction(
     amountCents: typeof body.amountCents === 'number' ? body.amountCents : 0,
     date: typeof body.date === 'string' ? body.date.slice(0, 10) : null,
     categoryId: typeof body.categoryId === 'string' ? body.categoryId : null,
+    merchantName: typeof body.merchantName === 'string' ? body.merchantName : null,
     isCredit: body.isCredit === true,
     isManual: body.isManual === true,
     userAliasId,

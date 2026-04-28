@@ -10,6 +10,7 @@ import { TransactionRow } from '@/components/transactions/transaction-row';
 import { useKpis } from '@/lib/queries/use-kpis';
 import { useTransactionsResult } from '@/lib/queries/use-transactions';
 import { useCategoryMap } from '@/lib/queries/use-categories';
+import { SpendingByCategory } from '@/components/dashboard/spending-by-category';
 
 function getCurrentMonthYear(): string {
   const now = new Date();
@@ -142,6 +143,10 @@ export default function DashboardPage() {
           </div>
         )}
       </section>
+
+      {!txLoading && !isEmpty && (
+        <SpendingByCategory transactions={transactions} categoryMap={categoryMap} />
+      )}
     </div>
   );
 }
