@@ -1,13 +1,14 @@
 'use client';
 
 import { useState } from 'react';
-import { Lock, Delete } from 'lucide-react';
+import { Lock, Delete, Loader2 } from 'lucide-react';
+import Link from 'next/link';
 import { usePrivacy } from '@/lib/privacy/privacy-context';
 
 const PAD = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '', '0', '⌫'];
 
 export function PrivacyOverlay() {
-  const { isLocked, unlock } = usePrivacy();
+  const { isLocked, unlock, pinReady } = usePrivacy();
   const [digits, setDigits] = useState<string[]>([]);
   const [shake, setShake] = useState(false);
   const [error, setError] = useState(false);
@@ -38,6 +39,14 @@ export function PrivacyOverlay() {
     }
   }
 
+  if (!pinReady) {
+    return (
+      <div className="fixed inset-0 z-[9990] flex items-center justify-center bg-background/95 backdrop-blur-md">
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
+
   return (
     <div className="fixed inset-0 z-[9990] flex flex-col items-center justify-center bg-background/95 backdrop-blur-md">
       <div className={`flex flex-col items-center gap-8 ${shake ? 'animate-[shake_0.5s_ease-in-out]' : ''}`}>
@@ -61,7 +70,7 @@ export function PrivacyOverlay() {
               className={`h-4 w-4 rounded-full border-2 transition-colors duration-150 ${
                 digits.length > i
                   ? 'border-primary bg-primary'
-                  : 'border-muted-foreground/40 bg-transparent'
+                  : 'border-muted-foreground bg-muted-foreground/20'
               }`}
             />
           ))}
@@ -86,6 +95,13 @@ export function PrivacyOverlay() {
           ))}
         </div>
       </div>
+
+      <Link
+        href="/settings"
+        className="absolute bottom-8 text-sm text-muted-foreground underline-offset-4 hover:underline"
+      >
+        Forgot PIN? Go to Settings
+      </Link>
 
       <style>{`
         @keyframes shake {
