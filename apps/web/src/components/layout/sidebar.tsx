@@ -13,9 +13,13 @@ import {
   LogOut,
   Tag,
   Wallet,
+  Lock,
+  LockOpen,
+  Settings,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/lib/auth/use-auth';
+import { usePrivacy } from '@/lib/privacy/privacy-context';
 
 const navItems = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -23,6 +27,7 @@ const navItems = [
   { href: '/categories', label: 'Categories', icon: Tag },
   { href: '/budgets', label: 'Budgets', icon: Wallet },
   { href: '/sync-status', label: 'Cloud Sync', icon: CloudUpload },
+  { href: '/settings', label: 'Settings', icon: Settings },
 ];
 
 /** Desktop sidebar — hidden on mobile */
@@ -30,6 +35,7 @@ export function Sidebar() {
   const pathname = usePathname();
   const [collapsed, setCollapsed] = useState(false);
   const { user, signOut } = useAuth();
+  const { isLocked, hasPin, lock } = usePrivacy();
 
   return (
     <aside
@@ -77,6 +83,27 @@ export function Sidebar() {
         })}
       </nav>
 
+      {/* Lock toggle */}
+      {hasPin && (
+        <div className="px-2 pb-1">
+          <button
+            onClick={lock}
+            disabled={isLocked}
+            title={isLocked ? 'Locked' : 'Lock screen'}
+            className={cn(
+              'flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm font-medium transition-colors',
+              isLocked
+                ? 'text-amber-500 bg-amber-500/10'
+                : 'text-muted-foreground hover:bg-muted hover:text-foreground',
+              collapsed && 'justify-center px-0',
+            )}
+          >
+            {isLocked ? <Lock className="h-4 w-4 shrink-0" /> : <LockOpen className="h-4 w-4 shrink-0" />}
+            {!collapsed && <span>{isLocked ? 'Locked' : 'Lock'}</span>}
+          </button>
+        </div>
+      )}
+
       {/* User */}
       {user && !collapsed && (
         <div className="flex items-center gap-2 border-t border-border px-3 py-2.5">
@@ -112,10 +139,11 @@ export function Sidebar() {
 export function MobileNav() {
   const pathname = usePathname();
   const { signOut } = useAuth();
+  const { isLocked, hasPin, lock } = usePrivacy();
 
   return (
     <nav className="fixed bottom-0 inset-x-0 z-40 flex md:hidden border-t border-border bg-card">
-      {navItems.map(({ href, label, icon: Icon }) => {
+      {navItems.slice(0, 4).map(({ href, label, icon: Icon }) => {
         const isActive = pathname === href || pathname.startsWith(href + '/');
         return (
           <Link
@@ -131,13 +159,27 @@ export function MobileNav() {
           </Link>
         );
       })}
-      <button
-        onClick={() => signOut()}
-        className="flex flex-1 flex-col items-center justify-center gap-1 py-2 text-[10px] font-medium text-muted-foreground"
-      >
-        <LogOut className="h-5 w-5" />
-        Sign out
-      </button>
+      {hasPin ? (
+        <button
+          onClick={lock}
+          disabled={isLocked}
+          className={cn(
+            'flex flex-1 flex-col items-center justify-center gap-1 py-2 text-[10px] font-medium',
+            isLocked ? 'text-amber-500' : 'text-muted-foreground',
+          )}
+        >
+          {isLocked ? <Lock className="h-5 w-5" /> : <LockOpen className="h-5 w-5" />}
+          {isLocked ? 'Locked' : 'Lock'}
+        </button>
+      ) : (
+        <button
+          onClick={() => signOut()}
+          className="flex flex-1 flex-col items-center justify-center gap-1 py-2 text-[10px] font-medium text-muted-foreground"
+        >
+          <LogOut className="h-5 w-5" />
+          Sign out
+        </button>
+      )}
     </nav>
   );
 }

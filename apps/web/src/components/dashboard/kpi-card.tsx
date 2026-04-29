@@ -2,6 +2,7 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
+import { BlurredAmount } from '@/components/privacy/blurred-amount';
 
 export interface KpiCardProps {
   label: string;
@@ -36,12 +37,13 @@ export function KpiCard({ label, amountCents, variant, isLoading }: KpiCardProps
             className="h-8 w-32 animate-pulse rounded bg-muted"
           />
         ) : (
-          <p
+          <BlurredAmount
             className={cn('text-2xl font-bold tabular-nums', variantStyles[variant])}
+            data-testid={`kpi-${variant}`}
             data-variant={variant}
           >
             {formatCents(amountCents)}
-          </p>
+          </BlurredAmount>
         )}
       </CardContent>
     </Card>

@@ -2,6 +2,7 @@
 
 import { cn } from '@/lib/utils';
 import type { TransactionDoc, CategoryDoc } from '@/lib/types/firestore';
+import { BlurredAmount } from '@/components/privacy/blurred-amount';
 
 interface TransactionRowProps {
   transaction: TransactionDoc;
@@ -53,7 +54,7 @@ export function TransactionRow({ transaction, categoryMap }: TransactionRowProps
           )}
         </div>
       </div>
-      <span
+      <BlurredAmount
         className={cn(
           'text-sm font-semibold tabular-nums shrink-0',
           isCredit ? 'text-green-600 dark:text-green-400' : 'text-destructive',
@@ -62,7 +63,7 @@ export function TransactionRow({ transaction, categoryMap }: TransactionRowProps
       >
         {isCredit ? '+' : '-'}
         {formatCents(amountCents)}
-      </span>
+      </BlurredAmount>
     </div>
   );
 }

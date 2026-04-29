@@ -8,18 +8,23 @@ import { useIdleLogout } from '@/lib/auth/use-idle-logout';
 import { getQueryClient } from '@/lib/query-client';
 import { Sidebar, MobileNav } from '@/components/layout/sidebar';
 import { IdleWarning } from '@/components/auth/idle-warning';
+import { PrivacyProvider } from '@/lib/privacy/privacy-context';
+import { PrivacyOverlay } from '@/components/privacy/privacy-overlay';
 
 function DashboardShell({ children }: { children: ReactNode }) {
   const { signOut } = useAuth();
   const { warningVisible, secondsLeft, reset } = useIdleLogout(signOut);
 
   return (
-    <div className="flex min-h-svh">
-      <Sidebar />
-      <main className="flex-1 overflow-auto pb-16 md:pb-0">{children}</main>
-      <MobileNav />
-      {warningVisible && <IdleWarning secondsLeft={secondsLeft} onStay={reset} />}
-    </div>
+    <PrivacyProvider>
+      <div className="flex min-h-svh">
+        <Sidebar />
+        <main className="flex-1 overflow-auto pb-16 md:pb-0">{children}</main>
+        <MobileNav />
+        {warningVisible && <IdleWarning secondsLeft={secondsLeft} onStay={reset} />}
+        <PrivacyOverlay />
+      </div>
+    </PrivacyProvider>
   );
 }
 

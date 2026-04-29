@@ -1,6 +1,7 @@
 'use client';
 
 import type { TransactionDoc, CategoryDoc } from '@/lib/types/firestore';
+import { BlurredAmount } from '@/components/privacy/blurred-amount';
 
 interface Props {
   transactions: TransactionDoc[];
@@ -24,8 +25,7 @@ export function SpendingByCategory({ transactions, categoryMap }: Props) {
   }
 
   const sorted = [...totals.entries()]
-    .sort((a, b) => b[1] - a[1])
-    .slice(0, 8);
+    .sort((a, b) => b[1] - a[1]);
 
   const max = sorted[0]?.[1] ?? 1;
 
@@ -41,7 +41,7 @@ export function SpendingByCategory({ transactions, categoryMap }: Props) {
             <div key={key}>
               <div className="flex items-center justify-between mb-1">
                 <span className="text-sm">{label}</span>
-                <span className="text-sm font-semibold tabular-nums">{formatCents(cents)}</span>
+                <BlurredAmount className="text-sm font-semibold tabular-nums">{formatCents(cents)}</BlurredAmount>
               </div>
               <div className="h-2 w-full rounded-full bg-muted overflow-hidden">
                 <div

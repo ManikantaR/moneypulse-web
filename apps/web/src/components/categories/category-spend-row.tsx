@@ -2,6 +2,7 @@
 
 import type { CategoryDoc } from '@/lib/types/firestore';
 import { cn } from '@/lib/utils';
+import { BlurredAmount } from '@/components/privacy/blurred-amount';
 
 interface Props {
   category: CategoryDoc | null;
@@ -26,12 +27,12 @@ export function CategorySpendRow({ category, spentCents, budgetCents, maxCents }
     <div>
       <div className="flex items-center justify-between mb-1">
         <span className="text-sm">{label}</span>
-        <span className="text-sm font-semibold tabular-nums">
+        <BlurredAmount className="text-sm font-semibold tabular-nums">
           {fmt(spentCents)}
           {budgetCents !== null && (
             <span className="ml-1 text-xs text-muted-foreground font-normal">/ {fmt(budgetCents)}</span>
           )}
-        </span>
+        </BlurredAmount>
       </div>
       <div className="h-2 w-full rounded-full bg-muted overflow-hidden">
         <div

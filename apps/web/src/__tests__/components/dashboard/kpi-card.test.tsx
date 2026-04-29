@@ -7,6 +7,7 @@ vi.mock('@/lib/firebase', () => ({
   firebaseAuth: vi.fn(() => ({})),
 }));
 
+
 describe('KpiCard', () => {
   it('renders the label', () => {
     render(<KpiCard label="Total Income" amountCents={150000} variant="income" />);
