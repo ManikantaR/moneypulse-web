@@ -5,6 +5,7 @@ import { useBudgets } from '@/lib/queries/use-budgets';
 import { useCategories } from '@/lib/queries/use-categories';
 import { useTransactionsResult } from '@/lib/queries/use-transactions';
 import { CategorySpendRow } from '@/components/categories/category-spend-row';
+import { BlurredAmount } from '@/components/privacy/blurred-amount';
 
 function getCurrentMonthYear(): string {
   const now = new Date();
@@ -63,21 +64,21 @@ export default function BudgetsPage() {
         <div className="mb-4 grid grid-cols-3 gap-3">
           <div className="rounded-xl border bg-card px-4 py-3">
             <p className="text-xs text-muted-foreground">Budgeted</p>
-            <p className="text-lg font-bold tabular-nums">
+            <BlurredAmount className="text-lg font-bold tabular-nums">
               {(totalBudgeted / 100).toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 })}
-            </p>
+            </BlurredAmount>
           </div>
           <div className="rounded-xl border bg-card px-4 py-3">
             <p className="text-xs text-muted-foreground">Spent</p>
-            <p className={`text-lg font-bold tabular-nums ${totalSpent > totalBudgeted ? 'text-destructive' : ''}`}>
+            <BlurredAmount className={`text-lg font-bold tabular-nums ${totalSpent > totalBudgeted ? 'text-destructive' : ''}`}>
               {(totalSpent / 100).toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 })}
-            </p>
+            </BlurredAmount>
           </div>
           <div className="rounded-xl border bg-card px-4 py-3">
             <p className="text-xs text-muted-foreground">Remaining</p>
-            <p className={`text-lg font-bold tabular-nums ${totalBudgeted - totalSpent < 0 ? 'text-destructive' : 'text-green-600 dark:text-green-400'}`}>
+            <BlurredAmount className={`text-lg font-bold tabular-nums ${totalBudgeted - totalSpent < 0 ? 'text-destructive' : 'text-green-600 dark:text-green-400'}`}>
               {((totalBudgeted - totalSpent) / 100).toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 })}
-            </p>
+            </BlurredAmount>
           </div>
         </div>
       )}

@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { CategorySpendRow } from '@/components/categories/category-spend-row';
+import { BlurredAmount } from '@/components/privacy/blurred-amount';
 import { useTransactionsResult } from '@/lib/queries/use-transactions';
 import { useCategories } from '@/lib/queries/use-categories';
 
@@ -85,9 +86,9 @@ export default function CategoriesPage() {
       {!isLoading && totalSpend > 0 && (
         <div className="mb-4 rounded-xl border bg-card px-5 py-3 flex items-center justify-between">
           <span className="text-sm text-muted-foreground">Total expenses</span>
-          <span className="text-lg font-bold tabular-nums">
+          <BlurredAmount className="text-lg font-bold tabular-nums">
             {(totalSpend / 100).toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 })}
-          </span>
+          </BlurredAmount>
         </div>
       )}
 
