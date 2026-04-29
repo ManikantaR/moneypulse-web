@@ -26,6 +26,7 @@ async function sha256(text: string): Promise<string> {
 interface PrivacyContextValue {
   isLocked: boolean;
   hasPin: boolean;
+  pinReady: boolean; // true once PIN hash loaded from Firestore
   lock: () => void;
   unlock: (pin: string) => Promise<boolean>;
   setPin: (pin: string) => Promise<void>;
@@ -35,6 +36,7 @@ interface PrivacyContextValue {
 const PrivacyContext = createContext<PrivacyContextValue>({
   isLocked: false,
   hasPin: false,
+  pinReady: false,
   lock: () => {},
   unlock: async () => false,
   setPin: async () => {},
@@ -48,20 +50,31 @@ export function usePrivacy() {
 export function PrivacyProvider({ children }: { children: ReactNode }) {
   const { user } = useAuth();
   const [pinHash, setPinHash] = useState<string | null>(null);
-  const [isLocked, setIsLocked] = useState(() =>
-    typeof sessionStorage !== 'undefined'
-      ? sessionStorage.getItem(SESSION_KEY) === '1'
-      : false,
-  );
+  const [pinReady, setPinReady] = useState(false);
+  // Start unlocked — useEffect applies sessionStorage state after hydration
+  const [isLocked, setIsLocked] = useState(false);
   const idleTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Load PIN hash from Firestore on mount
+  // Read lock state from sessionStorage after mount (avoids SSR hydration mismatch)
+  useEffect(() => {
+    if (sessionStorage.getItem(SESSION_KEY) === '1') {
+      setIsLocked(true);
+    }
+  }, []);
+
+  // Load PIN hash from Firestore; once loaded restore lock state if needed
   useEffect(() => {
     if (!user?.uid) return;
     const db = firebaseDb();
     getDoc(doc(db, 'users', user.uid)).then((snap) => {
-      const data = snap.data();
-      setPinHash((data?.privacyPinHash as string) ?? null);
+      const hash = (snap.data()?.privacyPinHash as string) ?? null;
+      setPinHash(hash);
+      setPinReady(true);
+      // If there's no PIN but sessionStorage says locked, clear the stale state
+      if (!hash) {
+        setIsLocked(false);
+        sessionStorage.removeItem(SESSION_KEY);
+      }
     });
   }, [user?.uid]);
 
@@ -74,13 +87,11 @@ export function PrivacyProvider({ children }: { children: ReactNode }) {
     }
   }, [isLocked]);
 
-  // Auto-lock after IDLE_MS of inactivity
+  // Auto-lock after IDLE_MS of inactivity (only when PIN is set)
   const resetIdle = useCallback(() => {
     if (idleTimer.current) clearTimeout(idleTimer.current);
-    if (!pinHash) return; // no pin = nothing to lock
-    idleTimer.current = setTimeout(() => {
-      setIsLocked(true);
-    }, IDLE_MS);
+    if (!pinHash) return;
+    idleTimer.current = setTimeout(() => setIsLocked(true), IDLE_MS);
   }, [pinHash]);
 
   useEffect(() => {
@@ -99,7 +110,12 @@ export function PrivacyProvider({ children }: { children: ReactNode }) {
 
   const unlock = useCallback(
     async (pin: string): Promise<boolean> => {
-      if (!pinHash) return true;
+      // Don't unlock if PIN hash hasn't loaded yet — wait for Firestore
+      if (!pinReady) return false;
+      if (!pinHash) {
+        setIsLocked(false);
+        return true;
+      }
       const hash = await sha256(pin);
       if (hash === pinHash) {
         setIsLocked(false);
@@ -108,7 +124,7 @@ export function PrivacyProvider({ children }: { children: ReactNode }) {
       }
       return false;
     },
-    [pinHash, resetIdle],
+    [pinHash, pinReady, resetIdle],
   );
 
   const setPin = useCallback(
@@ -118,6 +134,7 @@ export function PrivacyProvider({ children }: { children: ReactNode }) {
       const db = firebaseDb();
       await setDoc(doc(db, 'users', user.uid), { privacyPinHash: hash }, { merge: true });
       setPinHash(hash);
+      setPinReady(true);
     },
     [user?.uid],
   );
@@ -128,11 +145,12 @@ export function PrivacyProvider({ children }: { children: ReactNode }) {
     await updateDoc(doc(db, 'users', user.uid), { privacyPinHash: deleteField() });
     setPinHash(null);
     setIsLocked(false);
+    sessionStorage.removeItem(SESSION_KEY);
   }, [user?.uid]);
 
   return (
     <PrivacyContext.Provider
-      value={{ isLocked, hasPin: !!pinHash, lock, unlock, setPin, resetPin }}
+      value={{ isLocked, hasPin: !!pinHash, pinReady, lock, unlock, setPin, resetPin }}
     >
       {children}
     </PrivacyContext.Provider>
