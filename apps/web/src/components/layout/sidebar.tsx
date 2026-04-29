@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import {
   LayoutDashboard,
   ArrowLeftRight,
@@ -16,6 +16,7 @@ import {
   Lock,
   LockOpen,
   Settings,
+  MoreHorizontal,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/lib/auth/use-auth';
@@ -135,51 +136,106 @@ export function Sidebar() {
   );
 }
 
+const mainNavItems = navItems.slice(0, 4); // Dashboard, Transactions, Categories, Budgets
+const moreNavItems = navItems.slice(4);    // Cloud Sync, Settings
+
 /** Mobile bottom nav bar — visible only on mobile */
 export function MobileNav() {
   const pathname = usePathname();
   const { signOut } = useAuth();
   const { isLocked, hasPin, lock } = usePrivacy();
+  const [moreOpen, setMoreOpen] = useState(false);
+  const moreRef = useRef<HTMLDivElement>(null);
+
+  // Close "More" menu on outside click
+  useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      if (moreRef.current && !moreRef.current.contains(e.target as Node)) {
+        setMoreOpen(false);
+      }
+    }
+    if (moreOpen) document.addEventListener('mousedown', handleClick);
+    return () => document.removeEventListener('mousedown', handleClick);
+  }, [moreOpen]);
 
   return (
-    <nav className="fixed bottom-0 inset-x-0 z-40 flex md:hidden border-t border-border bg-card">
-      {navItems.slice(0, 4).map(({ href, label, icon: Icon }) => {
-        const isActive = pathname === href || pathname.startsWith(href + '/');
-        return (
-          <Link
-            key={href}
-            href={href}
-            className={cn(
-              'flex flex-1 flex-col items-center justify-center gap-1 py-2 text-[10px] font-medium transition-colors',
-              isActive ? 'text-primary' : 'text-muted-foreground',
-            )}
+    <>
+      {/* More sheet — slides up from bottom nav */}
+      {moreOpen && (
+        <div
+          ref={moreRef}
+          className="fixed bottom-[57px] inset-x-0 z-50 md:hidden border-t border-border bg-card shadow-lg"
+        >
+          {moreNavItems.map(({ href, label, icon: Icon }) => {
+            const isActive = pathname === href || pathname.startsWith(href + '/');
+            return (
+              <Link
+                key={href}
+                href={href}
+                onClick={() => setMoreOpen(false)}
+                className={cn(
+                  'flex items-center gap-3 px-5 py-3.5 text-sm font-medium border-b border-border last:border-0',
+                  isActive ? 'text-primary' : 'text-muted-foreground',
+                )}
+              >
+                <Icon className="h-5 w-5" />
+                {label}
+              </Link>
+            );
+          })}
+          {hasPin && (
+            <button
+              onClick={() => { lock(); setMoreOpen(false); }}
+              disabled={isLocked}
+              className={cn(
+                'flex w-full items-center gap-3 px-5 py-3.5 text-sm font-medium border-b border-border',
+                isLocked ? 'text-amber-500' : 'text-muted-foreground',
+              )}
+            >
+              {isLocked ? <Lock className="h-5 w-5" /> : <LockOpen className="h-5 w-5" />}
+              {isLocked ? 'Locked' : 'Lock screen'}
+            </button>
+          )}
+          <button
+            onClick={() => signOut()}
+            className="flex w-full items-center gap-3 px-5 py-3.5 text-sm font-medium text-muted-foreground"
           >
-            <Icon className="h-5 w-5" />
-            {label}
-          </Link>
-        );
-      })}
-      {hasPin ? (
+            <LogOut className="h-5 w-5" />
+            Sign out
+          </button>
+        </div>
+      )}
+
+      <nav className="fixed bottom-0 inset-x-0 z-40 flex md:hidden border-t border-border bg-card">
+        {mainNavItems.map(({ href, label, icon: Icon }) => {
+          const isActive = pathname === href || pathname.startsWith(href + '/');
+          return (
+            <Link
+              key={href}
+              href={href}
+              className={cn(
+                'flex flex-1 flex-col items-center justify-center gap-1 py-2 text-[10px] font-medium transition-colors',
+                isActive ? 'text-primary' : 'text-muted-foreground',
+              )}
+            >
+              <Icon className="h-5 w-5" />
+              {label}
+            </Link>
+          );
+        })}
+
+        {/* More button — 5th slot */}
         <button
-          onClick={lock}
-          disabled={isLocked}
+          onClick={() => setMoreOpen((o) => !o)}
           className={cn(
-            'flex flex-1 flex-col items-center justify-center gap-1 py-2 text-[10px] font-medium',
-            isLocked ? 'text-amber-500' : 'text-muted-foreground',
+            'flex flex-1 flex-col items-center justify-center gap-1 py-2 text-[10px] font-medium transition-colors',
+            moreOpen ? 'text-primary' : 'text-muted-foreground',
           )}
         >
-          {isLocked ? <Lock className="h-5 w-5" /> : <LockOpen className="h-5 w-5" />}
-          {isLocked ? 'Locked' : 'Lock'}
+          <MoreHorizontal className="h-5 w-5" />
+          More
         </button>
-      ) : (
-        <button
-          onClick={() => signOut()}
-          className="flex flex-1 flex-col items-center justify-center gap-1 py-2 text-[10px] font-medium text-muted-foreground"
-        >
-          <LogOut className="h-5 w-5" />
-          Sign out
-        </button>
-      )}
-    </nav>
+      </nav>
+    </>
   );
 }
