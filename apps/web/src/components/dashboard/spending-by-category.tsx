@@ -17,10 +17,11 @@ export function SpendingByCategory({ transactions, categoryMap }: Props) {
 
   if (expenses.length === 0) return null;
 
-  // Aggregate spending per category
+  // Aggregate spending per category.
+  // Coalesce unknown categoryIds (not yet synced to Firestore) into '__none__'.
   const totals = new Map<string, number>();
   for (const txn of expenses) {
-    const key = txn.categoryId ?? '__none__';
+    const key = txn.categoryId && categoryMap.has(txn.categoryId) ? txn.categoryId : '__none__';
     totals.set(key, (totals.get(key) ?? 0) + txn.amountCents);
   }
 

@@ -39,16 +39,18 @@ export default function CategoriesPage() {
   // Build categoryId → CategoryDoc map
   const catMap = new Map((categories ?? []).map((c) => [c.categoryId, c]));
 
-  // Aggregate spend per category (expenses only)
+  // Aggregate spend per category (expenses only).
+  // Resolve each categoryId to a known category; unknown IDs (orphaned UUIDs
+  // whose category hasn't synced yet) are coalesced into the null/"Uncategorized" bucket.
   const totals = new Map<string | null, number>();
   for (const txn of transactions) {
     if (txn.isCredit) continue;
-    const key = txn.categoryId ?? null;
-    totals.set(key, (totals.get(key) ?? 0) + txn.amountCents);
+    const resolved = txn.categoryId && catMap.has(txn.categoryId) ? txn.categoryId : null;
+    totals.set(resolved, (totals.get(resolved) ?? 0) + txn.amountCents);
   }
 
   const sorted = [...totals.entries()]
-    .map(([key, cents]) => ({ key, cents, cat: key ? catMap.get(key) ?? null : null }))
+    .map(([key, cents]) => ({ key, cents, cat: key ? (catMap.get(key) ?? null) : null }))
     .sort((a, b) => b.cents - a.cents);
 
   const totalSpend = sorted.reduce((s, r) => s + r.cents, 0);
