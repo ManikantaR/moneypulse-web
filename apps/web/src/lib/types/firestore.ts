@@ -29,3 +29,18 @@ export interface TransactionDoc {
   isManual: boolean;
   userAliasId: string;
 }
+
+export interface AiMetricsDoc {
+  userAliasId: string;
+  windowDays: number;
+  totalRuns: number;
+  avgLatencyMs: number | null;
+  avgConfidence: number | null;
+  piiDetectionCount: number;
+  piiDetectionRate: number;
+  categoriesAssignedTotal: number;
+  model: string | null;
+  healthStatus: 'ok' | 'degraded' | 'unavailable';
+  generatedAt: string;
+  syncedAt: unknown; // Firestore server timestamp
+}

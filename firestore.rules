@@ -41,5 +41,11 @@ service cloud.firestore {
       allow read: if request.auth != null && resource.data.userAliasId == request.auth.uid;
       allow write: if false;
     }
+
+    // Projected AI metrics — one aggregate doc per user alias, read-only from browser
+    match /aiMetrics/{userAliasId} {
+      allow read: if request.auth != null && request.auth.uid == userAliasId;
+      allow write: if false;
+    }
   }
 }

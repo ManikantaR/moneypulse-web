@@ -1,6 +1,6 @@
 # Phase 2 Spec - Dashboard and Transactions
 
-> Status: Planned. Current `apps/web` only contains the base app shell. This phase creates the first user-visible product surface on top of projected data.
+> Status: ✅ Done. Dashboard with KPI cards, monthly nav, spending-by-category breakdown, recent transactions list, and sync freshness banner are all implemented. Transactions page with date-range filtering is live.
 
 ## Goals
 

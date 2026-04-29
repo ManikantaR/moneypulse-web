@@ -105,10 +105,10 @@ Before completing any slice, verify:
 | Phase | Status |
 |---|---|
 | 0 — Foundation, deploy pipeline, sync ingress | ✅ Done and deployed |
-| 1 — Auth, alias profiles, tenant boundary | Planned — next |
-| 2 — Dashboard and transactions read model | Planned |
-| 3 — Categories, budgets, alerts, overlays | Planned |
-| 4 — Aggregate AI insights | Planned |
+| 1 — Auth, alias profiles, tenant boundary | ✅ Done |
+| 2 — Dashboard and transactions read model | ✅ Done |
+| 3 — Categories, budgets, privacy blur | ✅ Done |
+| 4 — Aggregate AI insights | 🚧 In Progress — next |
 | 5 — Notifications and web push (FCM) | Planned |
 | 6 — Hardening, abuse tests, launch readiness | Planned |
 

@@ -95,6 +95,29 @@ async function fanOutBudget(
   });
 }
 
+async function fanOutAiMetrics(
+  db: ReturnType<typeof getFirestore>,
+  body: Record<string, unknown>,
+): Promise<void> {
+  const userAliasId = typeof body.userAliasId === 'string' ? body.userAliasId : null;
+  if (!userAliasId) return;
+
+  await db.collection('aiMetrics').doc(userAliasId).set({
+    userAliasId,
+    windowDays: typeof body.windowDays === 'number' ? body.windowDays : 30,
+    totalRuns: typeof body.totalRuns === 'number' ? body.totalRuns : 0,
+    avgLatencyMs: typeof body.avgLatencyMs === 'number' ? body.avgLatencyMs : null,
+    avgConfidence: typeof body.avgConfidence === 'number' ? body.avgConfidence : null,
+    piiDetectionCount: typeof body.piiDetectionCount === 'number' ? body.piiDetectionCount : 0,
+    piiDetectionRate: typeof body.piiDetectionRate === 'number' ? body.piiDetectionRate : 0,
+    categoriesAssignedTotal: typeof body.categoriesAssignedTotal === 'number' ? body.categoriesAssignedTotal : 0,
+    model: typeof body.model === 'string' ? body.model : null,
+    healthStatus: typeof body.healthStatus === 'string' ? body.healthStatus : 'unavailable',
+    generatedAt: typeof body.generatedAt === 'string' ? body.generatedAt : null,
+    syncedAt: FieldValue.serverTimestamp(),
+  });
+}
+
 async function fanOutTransaction(
   db: ReturnType<typeof getFirestore>,
   body: Record<string, unknown>,
@@ -190,6 +213,8 @@ export const ingestSyncEvent = onRequest(
       await fanOutCategory(db, req.body);
     } else if (req.body.eventType === 'budget.projected.v1') {
       await fanOutBudget(db, req.body);
+    } else if (req.body.eventType === 'ai.metrics.projected.v1') {
+      await fanOutAiMetrics(db, req.body);
     } else if (req.body.eventType === 'transaction.projected.v1') {
       await fanOutTransaction(db, req.body);
       const uid = typeof req.body.userAliasId === 'string' ? req.body.userAliasId : null;

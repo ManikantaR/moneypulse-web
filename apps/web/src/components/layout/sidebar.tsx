@@ -17,6 +17,7 @@ import {
   LockOpen,
   Settings,
   MoreHorizontal,
+  Brain,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/lib/auth/use-auth';
@@ -27,6 +28,7 @@ const navItems = [
   { href: '/transactions', label: 'Transactions', icon: ArrowLeftRight },
   { href: '/categories', label: 'Categories', icon: Tag },
   { href: '/budgets', label: 'Budgets', icon: Wallet },
+  { href: '/ai-insights', label: 'AI Insights', icon: Brain },
   { href: '/sync-status', label: 'Cloud Sync', icon: CloudUpload },
   { href: '/settings', label: 'Settings', icon: Settings },
 ];

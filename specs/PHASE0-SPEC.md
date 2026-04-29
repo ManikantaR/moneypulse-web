@@ -1,6 +1,6 @@
 # Phase 0 Spec - Foundation and Security Baseline
 
-> Status: Partially implemented. Repository scaffold, Firestore deploy assets, Functions ingress, and GitHub Actions workflows exist. Secret Manager and deploy IAM prerequisites were discovered during real deploy attempts and must now be documented as part of the foundation.
+> Status: ✅ Done. Repository scaffold, Firestore deploy assets, Functions ingress, GitHub Actions OIDC deploy pipeline, Secret Manager, and least-privilege IAM are all complete and deployed.
 
 ## Goals
 
