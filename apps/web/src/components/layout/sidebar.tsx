@@ -18,16 +18,19 @@ import {
   Settings,
   MoreHorizontal,
   Brain,
+  Bell,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/lib/auth/use-auth';
 import { usePrivacy } from '@/lib/privacy/privacy-context';
+import { useNotifications } from '@/lib/fcm/use-notifications';
 
 const navItems = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/transactions', label: 'Transactions', icon: ArrowLeftRight },
   { href: '/categories', label: 'Categories', icon: Tag },
   { href: '/budgets', label: 'Budgets', icon: Wallet },
+  { href: '/notifications', label: 'Notifications', icon: Bell },
   { href: '/ai-insights', label: 'AI Insights', icon: Brain },
   { href: '/sync-status', label: 'Cloud Sync', icon: CloudUpload },
   { href: '/settings', label: 'Settings', icon: Settings },
@@ -39,6 +42,7 @@ export function Sidebar() {
   const [collapsed, setCollapsed] = useState(false);
   const { user, signOut } = useAuth();
   const { isLocked, hasPin, lock, openUnlock } = usePrivacy();
+  const { unreadCount } = useNotifications();
 
   return (
     <aside
@@ -66,6 +70,7 @@ export function Sidebar() {
       <nav className="flex-1 space-y-1 px-2 py-3">
         {navItems.map(({ href, label, icon: Icon }) => {
           const isActive = pathname === href || pathname.startsWith(href + '/');
+          const badge = href === '/notifications' && unreadCount > 0 ? unreadCount : 0;
           return (
             <Link
               key={href}
@@ -79,7 +84,14 @@ export function Sidebar() {
                 collapsed && 'justify-center px-0',
               )}
             >
-              <Icon className="h-4 w-4 shrink-0" />
+              <span className="relative">
+                <Icon className="h-4 w-4 shrink-0" />
+                {badge > 0 && (
+                  <span className="absolute -top-1 -right-1 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-destructive text-[8px] font-bold text-destructive-foreground leading-none">
+                    {badge > 9 ? '9+' : badge}
+                  </span>
+                )}
+              </span>
               {!collapsed && <span>{label}</span>}
             </Link>
           );
@@ -138,13 +150,14 @@ export function Sidebar() {
 }
 
 const mainNavItems = navItems.slice(0, 4); // Dashboard, Transactions, Categories, Budgets
-const moreNavItems = navItems.slice(4);    // Cloud Sync, Settings
+const moreNavItems = navItems.slice(4);    // Notifications, AI Insights, Cloud Sync, Settings
 
 /** Mobile bottom nav bar — visible only on mobile */
 export function MobileNav() {
   const pathname = usePathname();
   const { signOut } = useAuth();
   const { isLocked, hasPin, lock, openUnlock } = usePrivacy();
+  const { unreadCount } = useNotifications();
   const [moreOpen, setMoreOpen] = useState(false);
   const moreRef = useRef<HTMLDivElement>(null);
 
@@ -169,6 +182,7 @@ export function MobileNav() {
         >
           {moreNavItems.map(({ href, label, icon: Icon }) => {
             const isActive = pathname === href || pathname.startsWith(href + '/');
+            const badge = href === '/notifications' && unreadCount > 0 ? unreadCount : 0;
             return (
               <Link
                 key={href}
@@ -179,7 +193,14 @@ export function MobileNav() {
                   isActive ? 'text-primary' : 'text-muted-foreground',
                 )}
               >
-                <Icon className="h-5 w-5" />
+                <span className="relative">
+                  <Icon className="h-5 w-5" />
+                  {badge > 0 && (
+                    <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-destructive text-[9px] font-bold text-destructive-foreground leading-none">
+                      {badge > 9 ? '9+' : badge}
+                    </span>
+                  )}
+                </span>
                 {label}
               </Link>
             );
@@ -232,7 +253,12 @@ export function MobileNav() {
             moreOpen ? 'text-primary' : 'text-muted-foreground',
           )}
         >
-          <MoreHorizontal className="h-5 w-5" />
+          <span className="relative">
+            <MoreHorizontal className="h-5 w-5" />
+            {unreadCount > 0 && (
+              <span className="absolute -top-1 -right-1 h-2 w-2 rounded-full bg-destructive" />
+            )}
+          </span>
           More
         </button>
       </nav>

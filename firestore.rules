@@ -24,6 +24,21 @@ service cloud.firestore {
       allow read, write: if request.auth != null && request.auth.uid == userAliasId;
     }
 
+    // Device tokens — browser writes on registration, read own tokens only
+    match /users/{userAliasId}/deviceTokens/{tokenId} {
+      allow read, write: if request.auth != null && request.auth.uid == userAliasId;
+    }
+
+    // Projected notifications — written by ingestSyncEvent function, browser marks isRead
+    match /users/{userAliasId}/notifications/{notifId} {
+      allow read: if request.auth != null && request.auth.uid == userAliasId;
+      // Allow only isRead field update — no other field mutations from browser
+      allow update: if request.auth != null
+        && request.auth.uid == userAliasId
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['isRead']);
+      allow create, delete: if false;
+    }
+
     // Projected transactions — read-only from browser, written by sync function only
     match /transactions/{txnId} {
       allow read: if request.auth != null && resource.data.userAliasId == request.auth.uid;

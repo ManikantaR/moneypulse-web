@@ -10,10 +10,12 @@ import { Sidebar, MobileNav } from '@/components/layout/sidebar';
 import { IdleWarning } from '@/components/auth/idle-warning';
 import { PrivacyProvider } from '@/lib/privacy/privacy-context';
 import { PrivacyOverlay } from '@/components/privacy/privacy-overlay';
+import { useFcmToken } from '@/lib/fcm/use-fcm-token';
 
 function DashboardShell({ children }: { children: ReactNode }) {
   const { signOut } = useAuth();
   const { warningVisible, secondsLeft, reset } = useIdleLogout(signOut);
+  useFcmToken();
 
   return (
     <PrivacyProvider>

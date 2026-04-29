@@ -15,8 +15,8 @@ Cloud-hosted companion app for MoneyPulse with strict data boundary:
 | 1 | Auth — Firebase email/password, alias profile, protected routes | ✅ Done |
 | 2 | Dashboard and transactions read model | ✅ Done |
 | 3 | Categories, budgets, privacy blur | ✅ Done |
-| 4 | Aggregate AI insights (model health, latency, PII rate) | 🚧 In Progress |
-| 5 | Notifications and web push (FCM) | Planned |
+| 4 | Aggregate AI insights (model health, latency, PII rate) | ✅ Done |
+| 5 | Notifications and web push (FCM) | ✅ Done |
 | 6 | Hardening, abuse tests, launch readiness | Planned |
 
 → Full phase specs: [specs/](specs/)

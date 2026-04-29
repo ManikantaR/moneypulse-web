@@ -108,8 +108,8 @@ Before completing any slice, verify:
 | 1 — Auth, alias profiles, tenant boundary | ✅ Done |
 | 2 — Dashboard and transactions read model | ✅ Done |
 | 3 — Categories, budgets, privacy blur | ✅ Done |
-| 4 — Aggregate AI insights | 🚧 In Progress — next |
-| 5 — Notifications and web push (FCM) | Planned |
+| 4 — Aggregate AI insights | ✅ Done |
+| 5 — Notifications and web push (FCM) | ✅ Done |
 | 6 — Hardening, abuse tests, launch readiness | Planned |
 
 Always read `specs/PHASE<N>-SPEC.md` before starting any phase work.

@@ -30,6 +30,25 @@ export interface TransactionDoc {
   userAliasId: string;
 }
 
+export interface NotificationDoc {
+  id: string;
+  type: string;
+  title: string;
+  body: string;
+  isRead: boolean;
+  createdAt: unknown; // Firestore server timestamp
+  userAliasId: string;
+}
+
+export interface DeviceTokenDoc {
+  token: string;
+  platform: 'web';
+  platformDetail: string;
+  userAliasId: string;
+  lastSeenAt: unknown;
+  createdAt: unknown;
+}
+
 export interface AiMetricsDoc {
   userAliasId: string;
   windowDays: number;

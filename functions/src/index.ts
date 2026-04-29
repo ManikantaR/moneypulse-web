@@ -95,6 +95,30 @@ async function fanOutBudget(
   });
 }
 
+async function fanOutNotification(
+  db: ReturnType<typeof getFirestore>,
+  body: Record<string, unknown>,
+): Promise<void> {
+  const notificationAliasId = typeof body.notificationAliasId === 'string' ? body.notificationAliasId : null;
+  const userAliasId = typeof body.userAliasId === 'string' ? body.userAliasId : null;
+  if (!notificationAliasId || !userAliasId) return;
+
+  await db
+    .collection('users')
+    .doc(userAliasId)
+    .collection('notifications')
+    .doc(notificationAliasId)
+    .set({
+      type: typeof body.type === 'string' ? body.type : 'alert',
+      title: typeof body.title === 'string' ? body.title : '',
+      body: typeof body.body === 'string' ? body.body : '',
+      isRead: false,
+      userAliasId,
+      createdAt: FieldValue.serverTimestamp(),
+      syncedAt: FieldValue.serverTimestamp(),
+    });
+}
+
 async function fanOutAiMetrics(
   db: ReturnType<typeof getFirestore>,
   body: Record<string, unknown>,
@@ -215,6 +239,8 @@ export const ingestSyncEvent = onRequest(
       await fanOutBudget(db, req.body);
     } else if (req.body.eventType === 'ai.metrics.projected.v1') {
       await fanOutAiMetrics(db, req.body);
+    } else if (req.body.eventType === 'notification.projected.v1') {
+      await fanOutNotification(db, req.body);
     } else if (req.body.eventType === 'transaction.projected.v1') {
       await fanOutTransaction(db, req.body);
       const uid = typeof req.body.userAliasId === 'string' ? req.body.userAliasId : null;

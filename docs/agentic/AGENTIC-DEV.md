@@ -77,7 +77,7 @@ Paste these exactly into Copilot Chat after selecting the `mw-lead` agent (or th
 /mw-review-phase-work target=PHASE3 overlay collections focus=security
 ```
 
-### Phase 4 — AI Insights (Aggregate Only) 🚧 In Progress
+### Phase 4 — AI Insights (Aggregate Only) ✅ Done
 
 ```text
 /mw-phase-orchestrate phase=PHASE4 task=Aggregate AI metrics cards and trend chart constraints=no raw prompt or output text minimum cohort size enforced
@@ -87,7 +87,7 @@ Paste these exactly into Copilot Chat after selecting the `mw-lead` agent (or th
 /mw-implement-phase-slice phase=PHASE4 slice=aggregate AI metrics cards validation=pnpm build
 ```
 
-### Phase 5 — Notifications and Web Push
+### Phase 5 — Notifications and Web Push ✅ Done
 
 ```text
 /mw-phase-orchestrate phase=PHASE5 task=FCM token registration and notification inbox constraints=minimal push payloads token scoped to alias boundary
