@@ -36,7 +36,7 @@ export function Sidebar() {
   const pathname = usePathname();
   const [collapsed, setCollapsed] = useState(false);
   const { user, signOut } = useAuth();
-  const { isLocked, hasPin, lock } = usePrivacy();
+  const { isLocked, hasPin, lock, openUnlock } = usePrivacy();
 
   return (
     <aside
@@ -88,13 +88,12 @@ export function Sidebar() {
       {hasPin && (
         <div className="px-2 pb-1">
           <button
-            onClick={lock}
-            disabled={isLocked}
-            title={isLocked ? 'Locked' : 'Lock screen'}
+            onClick={isLocked ? openUnlock : lock}
+            title={isLocked ? 'Click to unlock' : 'Lock amounts'}
             className={cn(
               'flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm font-medium transition-colors',
               isLocked
-                ? 'text-amber-500 bg-amber-500/10'
+                ? 'text-amber-500 bg-amber-500/10 hover:bg-amber-500/20'
                 : 'text-muted-foreground hover:bg-muted hover:text-foreground',
               collapsed && 'justify-center px-0',
             )}
@@ -143,7 +142,7 @@ const moreNavItems = navItems.slice(4);    // Cloud Sync, Settings
 export function MobileNav() {
   const pathname = usePathname();
   const { signOut } = useAuth();
-  const { isLocked, hasPin, lock } = usePrivacy();
+  const { isLocked, hasPin, lock, openUnlock } = usePrivacy();
   const [moreOpen, setMoreOpen] = useState(false);
   const moreRef = useRef<HTMLDivElement>(null);
 
@@ -185,15 +184,14 @@ export function MobileNav() {
           })}
           {hasPin && (
             <button
-              onClick={() => { lock(); setMoreOpen(false); }}
-              disabled={isLocked}
+              onClick={() => { isLocked ? openUnlock() : lock(); setMoreOpen(false); }}
               className={cn(
                 'flex w-full items-center gap-3 px-5 py-3.5 text-sm font-medium border-b border-border',
                 isLocked ? 'text-amber-500' : 'text-muted-foreground',
               )}
             >
               {isLocked ? <Lock className="h-5 w-5" /> : <LockOpen className="h-5 w-5" />}
-              {isLocked ? 'Locked' : 'Lock screen'}
+              {isLocked ? 'Tap to unlock' : 'Lock amounts'}
             </button>
           )}
           <button

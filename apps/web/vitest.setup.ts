@@ -7,6 +7,6 @@ import { vi } from 'vitest';
 
 // Privacy context — default to unlocked in all tests
 vi.mock('@/lib/privacy/privacy-context', () => ({
-  usePrivacy: () => ({ isLocked: false, hasPin: false, lock: vi.fn(), unlock: vi.fn(), setPin: vi.fn(), resetPin: vi.fn() }),
+  usePrivacy: () => ({ isLocked: false, hasPin: false, pinReady: true, isUnlockOpen: false, lock: vi.fn(), openUnlock: vi.fn(), closeUnlock: vi.fn(), unlock: vi.fn(), setPin: vi.fn(), resetPin: vi.fn() }),
   PrivacyProvider: ({ children }: { children: React.ReactNode }) => children,
 }));

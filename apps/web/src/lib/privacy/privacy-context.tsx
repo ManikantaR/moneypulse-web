@@ -27,7 +27,10 @@ interface PrivacyContextValue {
   isLocked: boolean;
   hasPin: boolean;
   pinReady: boolean; // true once PIN hash loaded from Firestore
+  isUnlockOpen: boolean; // PIN dialog visible
   lock: () => void;
+  openUnlock: () => void;
+  closeUnlock: () => void;
   unlock: (pin: string) => Promise<boolean>;
   setPin: (pin: string) => Promise<void>;
   resetPin: () => Promise<void>;
@@ -37,7 +40,10 @@ const PrivacyContext = createContext<PrivacyContextValue>({
   isLocked: false,
   hasPin: false,
   pinReady: false,
+  isUnlockOpen: false,
   lock: () => {},
+  openUnlock: () => {},
+  closeUnlock: () => {},
   unlock: async () => false,
   setPin: async () => {},
   resetPin: async () => {},
@@ -53,6 +59,7 @@ export function PrivacyProvider({ children }: { children: ReactNode }) {
   const [pinReady, setPinReady] = useState(false);
   // Start unlocked — useEffect applies sessionStorage state after hydration
   const [isLocked, setIsLocked] = useState(false);
+  const [isUnlockOpen, setIsUnlockOpen] = useState(false);
   const idleTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Read lock state from sessionStorage after mount (avoids SSR hydration mismatch)
@@ -108,6 +115,9 @@ export function PrivacyProvider({ children }: { children: ReactNode }) {
     if (pinHash) setIsLocked(true);
   }, [pinHash]);
 
+  const openUnlock = useCallback(() => setIsUnlockOpen(true), []);
+  const closeUnlock = useCallback(() => setIsUnlockOpen(false), []);
+
   const unlock = useCallback(
     async (pin: string): Promise<boolean> => {
       // Don't unlock if PIN hash hasn't loaded yet — wait for Firestore
@@ -119,6 +129,7 @@ export function PrivacyProvider({ children }: { children: ReactNode }) {
       const hash = await sha256(pin);
       if (hash === pinHash) {
         setIsLocked(false);
+        setIsUnlockOpen(false);
         resetIdle();
         return true;
       }
@@ -150,7 +161,7 @@ export function PrivacyProvider({ children }: { children: ReactNode }) {
 
   return (
     <PrivacyContext.Provider
-      value={{ isLocked, hasPin: !!pinHash, pinReady, lock, unlock, setPin, resetPin }}
+      value={{ isLocked, hasPin: !!pinHash, pinReady, isUnlockOpen, lock, openUnlock, closeUnlock, unlock, setPin, resetPin }}
     >
       {children}
     </PrivacyContext.Provider>
