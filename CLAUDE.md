@@ -110,7 +110,7 @@ Before completing any slice, verify:
 | 3 — Categories, budgets, privacy blur | ✅ Done |
 | 4 — Aggregate AI insights | ✅ Done |
 | 5 — Notifications and web push (FCM) | ✅ Done |
-| 6 — Hardening, abuse tests, launch readiness | Planned |
+| 6 — Hardening, abuse tests, launch readiness | ✅ Done |
 
 Always read `specs/PHASE<N>-SPEC.md` before starting any phase work.
 

@@ -1,6 +1,6 @@
 # Phase 6 Spec - Hardening and Launch Readiness
 
-> Status: Planned. This phase is the production gate. It turns the implementation from feature-complete to deployment-ready, abuse-tested, and operator-friendly.
+> Status: ✅ Done. Ingress abuse tests (9 cases), operations runbooks (deploy, secret rotation, incident response), production launch checklist, and AI Insights no-activity UX fix all implemented.
 
 ## Goals
 

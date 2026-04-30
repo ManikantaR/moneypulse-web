@@ -17,7 +17,7 @@ Cloud-hosted companion app for MoneyPulse with strict data boundary:
 | 3 | Categories, budgets, privacy blur | ✅ Done |
 | 4 | Aggregate AI insights (model health, latency, PII rate) | ✅ Done |
 | 5 | Notifications and web push (FCM) | ✅ Done |
-| 6 | Hardening, abuse tests, launch readiness | Planned |
+| 6 | Hardening, abuse tests, launch readiness | ✅ Done |
 
 → Full phase specs: [specs/](specs/)
 

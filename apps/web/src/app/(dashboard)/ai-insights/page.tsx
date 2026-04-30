@@ -38,7 +38,7 @@ function MetricCard({
   );
 }
 
-function HealthBadge({ status }: { status: 'ok' | 'degraded' | 'unavailable' }) {
+function HealthBadge({ status, totalRuns }: { status: 'ok' | 'degraded' | 'unavailable'; totalRuns: number }) {
   if (status === 'ok') {
     return (
       <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-3 py-1 text-xs font-semibold text-emerald-600">
@@ -50,6 +50,14 @@ function HealthBadge({ status }: { status: 'ok' | 'degraded' | 'unavailable' }) 
     return (
       <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-500/10 px-3 py-1 text-xs font-semibold text-amber-600">
         <AlertTriangle className="h-3.5 w-3.5" /> Degraded
+      </span>
+    );
+  }
+  // totalRuns === 0 means AI simply hasn't been used in the window — neutral, not an error
+  if (totalRuns === 0) {
+    return (
+      <span className="inline-flex items-center gap-1.5 rounded-full bg-muted px-3 py-1 text-xs font-semibold text-muted-foreground">
+        <XCircle className="h-3.5 w-3.5" /> No Activity
       </span>
     );
   }
@@ -72,7 +80,7 @@ export default function AiInsightsPage() {
             Aggregate model health and categorization stats — no raw data stored in cloud.
           </p>
         </div>
-        {metrics && <HealthBadge status={metrics.healthStatus} />}
+        {metrics && <HealthBadge status={metrics.healthStatus} totalRuns={metrics.totalRuns} />}
       </div>
 
       {isLoading && (
@@ -158,7 +166,14 @@ export default function AiInsightsPage() {
             />
           </div>
 
-          <p className="mt-5 text-right text-xs text-muted-foreground">
+          {metrics.totalRuns === 0 && (
+            <p className="mt-4 rounded-lg border border-border bg-muted/40 px-4 py-3 text-xs text-muted-foreground">
+              No AI categorization runs found in the last {metrics.windowDays} days. Use AI-assisted
+              categorization in the local MoneyPulse app to populate these metrics.
+            </p>
+          )}
+
+          <p className="mt-4 text-right text-xs text-muted-foreground">
             Stats generated {new Date(metrics.generatedAt).toLocaleString()}
           </p>
         </>

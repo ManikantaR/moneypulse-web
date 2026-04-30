@@ -97,7 +97,7 @@ Paste these exactly into Copilot Chat after selecting the `mw-lead` agent (or th
 /mw-implement-phase-slice phase=PHASE5 slice=FCM token registration and browser permission flow validation=pnpm test
 ```
 
-### Phase 6 — Hardening and Launch Readiness
+### Phase 6 — Hardening and Launch Readiness ✅ Done
 
 ```text
 /mw-phase-orchestrate phase=PHASE6 task=Abuse tests rules review secret rotation drill and runbooks constraints=zero critical findings before launch
