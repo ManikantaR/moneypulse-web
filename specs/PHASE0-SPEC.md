@@ -47,7 +47,11 @@
 
 ### Firestore
 
-- default deny as the base rule posture
+- default deny as the base rule posture — every collection requires an explicit rule; the global `match /{document=**} { allow read, write: if false; }` block provides no collection-level coverage on its own
+- user document isolation uses a two-level rule:
+  - `match /users/{userAliasId}` — protects the root profile document (zero sub-segments; not covered by `{document=**}`)
+  - `match /users/{userAliasId}/{document=**}` — protects all sub-collections
+  - both gates check `request.auth.uid == userAliasId`
 - no browser writes to projected collections
 - future overlay collections must be explicitly separated from projected collections
 
