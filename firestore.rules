@@ -17,7 +17,7 @@ service cloud.firestore {
       allow read, write: if request.auth != null && request.auth.uid == userAliasId;
     }
 
-    // Device tokens — browser writes FCM token on registration, reads own tokens only
+    // Device tokens — browser writes FCM token on registration, reads own tokens only.
     match /users/{userAliasId}/deviceTokens/{tokenId} {
       allow read, write: if request.auth != null && request.auth.uid == userAliasId;
     }

@@ -1,6 +1,6 @@
 # Phase 5 Spec - In-App Notifications and Web Push
 
-> Status: Planned. This phase adds cloud-native delivery surfaces on top of the projected alerts model while keeping payloads minimal and device state explicit.
+> Status: ✅ Done. FCM token registration, service worker, notification inbox page, Firestore rules for deviceTokens and notifications subcollections, Cloud Function fan-out, and local outbox enqueue all implemented.
 
 ## Goals
 

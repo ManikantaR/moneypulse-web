@@ -1,6 +1,6 @@
 # Phase 3 Spec - Categories, Budgets, Alerts
 
-> Status: Planned. This phase extends the read model from transaction visibility to spending control surfaces while keeping projected and overlay state cleanly separated.
+> Status: ✅ Done. Categories page with per-category spend bars, total expenses summary, and month navigation implemented. Budgets page with Budgeted/Spent/Remaining KPIs and per-category progress bars live. BlurredAmount privacy applied throughout.
 
 ## Goals
 

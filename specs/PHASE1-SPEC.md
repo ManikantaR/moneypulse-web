@@ -1,6 +1,6 @@
 # Phase 1 Spec - Auth and Tenant Boundary
 
-> Status: Planned. No auth UI or alias profile flow exists yet. This phase establishes user identity, alias-based isolation, and the first browser-authenticated experience.
+> Status: ✅ Done. Firebase Auth (email/password) implemented with login, register, and reset-password pages. Alias profile bootstrap on sign-in, auth-aware protected route shell, idle-logout hook, and per-user Firestore rules are all live.
 
 ## Goals
 

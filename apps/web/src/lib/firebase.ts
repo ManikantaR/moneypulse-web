@@ -1,47 +1,56 @@
-import { initializeApp, getApps, getApp, type FirebaseOptions } from 'firebase/app';
-import { getAuth } from 'firebase/auth';
-import { getFirestore } from 'firebase/firestore';
-import { getMessaging } from 'firebase/messaging';
+import {
+  initializeApp,
+  getApps,
+  getApp as getFirebaseApp,
+  type FirebaseApp,
+  type FirebaseOptions,
+} from 'firebase/app';
+import { getAuth, type Auth } from 'firebase/auth';
+import { getFirestore, type Firestore } from 'firebase/firestore';
+import { getMessaging, type Messaging } from 'firebase/messaging';
 
-const required = [
-  'NEXT_PUBLIC_FIREBASE_API_KEY',
-  'NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN',
-  'NEXT_PUBLIC_FIREBASE_PROJECT_ID',
-  'NEXT_PUBLIC_FIREBASE_APP_ID',
-] as const;
+// Firebase client config is public — safe in browser bundle.
+// Never put secrets (signing keys, admin credentials) here.
+function buildConfig(): FirebaseOptions {
+  const apiKey = process.env.NEXT_PUBLIC_FIREBASE_API_KEY;
+  const authDomain = process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN;
+  const projectId = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID;
+  const appId = process.env.NEXT_PUBLIC_FIREBASE_APP_ID;
 
-for (const key of required) {
-  if (!process.env[key]) {
-    // Fail fast at runtime so missing env is obvious during setup.
-    // This keeps secrets out of code and allows safe scaffolding in git.
-    // eslint-disable-next-line no-console
-    console.warn(`Missing env var: ${key}`);
-  }
-}
-
-function requiredEnv(key: (typeof required)[number]): string {
-  const value = process.env[key];
-  if (!value) {
-    throw new Error(`Missing required Firebase env var: ${key}`);
+  if (!apiKey || !authDomain || !projectId || !appId) {
+    throw new Error(
+      'Missing Firebase config. Ensure NEXT_PUBLIC_FIREBASE_* env vars are set.',
+    );
   }
 
-  return value;
+  const config: FirebaseOptions = { apiKey, authDomain, projectId, appId };
+  const sender = process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID;
+  if (sender) config.messagingSenderId = sender;
+  return config;
 }
 
-const firebaseConfig: FirebaseOptions = {
-  apiKey: requiredEnv('NEXT_PUBLIC_FIREBASE_API_KEY'),
-  authDomain: requiredEnv('NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN'),
-  projectId: requiredEnv('NEXT_PUBLIC_FIREBASE_PROJECT_ID'),
-  appId: requiredEnv('NEXT_PUBLIC_FIREBASE_APP_ID'),
-};
-
-const messagingSenderId = process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID;
-if (messagingSenderId) {
-  firebaseConfig.messagingSenderId = messagingSenderId;
+function getApp(): FirebaseApp {
+  return getApps().length ? getFirebaseApp() : initializeApp(buildConfig());
 }
 
-const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
+// All singletons are lazily initialised — getters are only called from client
+// components inside effects, never during SSR module evaluation.
+let _auth: Auth | undefined;
+let _db: Firestore | undefined;
+let _messaging: Messaging | null | undefined;
 
-export const auth = getAuth(app);
-export const db = getFirestore(app);
-export const messaging = typeof window !== 'undefined' ? getMessaging(app) : null;
+export function firebaseAuth(): Auth {
+  if (!_auth) _auth = getAuth(getApp());
+  return _auth;
+}
+
+export function firebaseDb(): Firestore {
+  if (!_db) _db = getFirestore(getApp());
+  return _db;
+}
+
+export function firebaseMessaging(): Messaging | null {
+  if (typeof window === 'undefined') return null;
+  if (_messaging === undefined) _messaging = getMessaging(getApp());
+  return _messaging;
+}

@@ -1,6 +1,6 @@
 # Phase 4 Spec - AI Insights (Aggregate Only)
 
-> Status: Planned. MoneyPulse Web must surface AI quality and system health without copying raw local AI prompt or output data into the cloud.
+> Status: 🚧 In Progress. Implementing aggregate AI metrics sync from local MoneyPulse (ai_prompt_logs → outbox → Firestore aiMetrics) and the web display page.
 
 ## Goals
 

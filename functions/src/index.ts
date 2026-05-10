@@ -58,6 +58,113 @@ function isAlreadyExistsError(error: unknown): boolean {
     : error.message.toLowerCase().includes('already exists');
 }
 
+async function fanOutCategory(
+  db: ReturnType<typeof getFirestore>,
+  body: Record<string, unknown>,
+): Promise<void> {
+  const categoryId = typeof body.categoryId === 'string' ? body.categoryId : null;
+  const userAliasId = typeof body.userAliasId === 'string' ? body.userAliasId : null;
+  if (!categoryId || !userAliasId) return;
+
+  await db.collection('categories').doc(`${userAliasId}_${categoryId}`).set({
+    categoryId,
+    name: typeof body.name === 'string' ? body.name : null,
+    icon: typeof body.icon === 'string' ? body.icon : null,
+    color: typeof body.color === 'string' ? body.color : null,
+    parentCategoryId: typeof body.parentCategoryId === 'string' ? body.parentCategoryId : null,
+    userAliasId,
+    syncedAt: FieldValue.serverTimestamp(),
+  });
+}
+
+async function fanOutBudget(
+  db: ReturnType<typeof getFirestore>,
+  body: Record<string, unknown>,
+): Promise<void> {
+  const budgetId = typeof body.budgetId === 'string' ? body.budgetId : null;
+  const userAliasId = typeof body.userAliasId === 'string' ? body.userAliasId : null;
+  if (!budgetId || !userAliasId) return;
+
+  await db.collection('budgets').doc(`${userAliasId}_${budgetId}`).set({
+    budgetId,
+    categoryId: typeof body.categoryId === 'string' ? body.categoryId : null,
+    amountCents: typeof body.amountCents === 'number' ? body.amountCents : 0,
+    period: typeof body.period === 'string' ? body.period : 'monthly',
+    userAliasId,
+    syncedAt: FieldValue.serverTimestamp(),
+  });
+}
+
+async function fanOutNotification(
+  db: ReturnType<typeof getFirestore>,
+  body: Record<string, unknown>,
+): Promise<void> {
+  const notificationAliasId = typeof body.notificationAliasId === 'string' ? body.notificationAliasId : null;
+  const userAliasId = typeof body.userAliasId === 'string' ? body.userAliasId : null;
+  if (!notificationAliasId || !userAliasId) return;
+
+  await db
+    .collection('users')
+    .doc(userAliasId)
+    .collection('notifications')
+    .doc(notificationAliasId)
+    .set({
+      type: typeof body.type === 'string' ? body.type : 'alert',
+      title: typeof body.title === 'string' ? body.title : '',
+      body: typeof body.body === 'string' ? body.body : '',
+      isRead: false,
+      userAliasId,
+      createdAt: FieldValue.serverTimestamp(),
+      syncedAt: FieldValue.serverTimestamp(),
+    });
+}
+
+async function fanOutAiMetrics(
+  db: ReturnType<typeof getFirestore>,
+  body: Record<string, unknown>,
+): Promise<void> {
+  const userAliasId = typeof body.userAliasId === 'string' ? body.userAliasId : null;
+  if (!userAliasId) return;
+
+  await db.collection('aiMetrics').doc(userAliasId).set({
+    userAliasId,
+    windowDays: typeof body.windowDays === 'number' ? body.windowDays : 30,
+    totalRuns: typeof body.totalRuns === 'number' ? body.totalRuns : 0,
+    avgLatencyMs: typeof body.avgLatencyMs === 'number' ? body.avgLatencyMs : null,
+    avgConfidence: typeof body.avgConfidence === 'number' ? body.avgConfidence : null,
+    piiDetectionCount: typeof body.piiDetectionCount === 'number' ? body.piiDetectionCount : 0,
+    piiDetectionRate: typeof body.piiDetectionRate === 'number' ? body.piiDetectionRate : 0,
+    categoriesAssignedTotal: typeof body.categoriesAssignedTotal === 'number' ? body.categoriesAssignedTotal : 0,
+    model: typeof body.model === 'string' ? body.model : null,
+    healthStatus: typeof body.healthStatus === 'string' ? body.healthStatus : 'unavailable',
+    generatedAt: typeof body.generatedAt === 'string' ? body.generatedAt : null,
+    syncedAt: FieldValue.serverTimestamp(),
+  });
+}
+
+async function fanOutTransaction(
+  db: ReturnType<typeof getFirestore>,
+  body: Record<string, unknown>,
+): Promise<void> {
+  const txnAliasId = typeof body.transactionAliasId === 'string' ? body.transactionAliasId : null;
+  const userAliasId = typeof body.userAliasId === 'string' ? body.userAliasId : null;
+
+  if (!txnAliasId || !userAliasId) return;
+
+  await db.collection('transactions').doc(txnAliasId).set({
+    transactionAliasId: txnAliasId,
+    accountAliasId: typeof body.accountAliasId === 'string' ? body.accountAliasId : null,
+    amountCents: typeof body.amountCents === 'number' ? body.amountCents : 0,
+    date: typeof body.date === 'string' ? body.date.slice(0, 10) : null,
+    categoryId: typeof body.categoryId === 'string' ? body.categoryId : null,
+    merchantName: typeof body.merchantName === 'string' ? body.merchantName : null,
+    isCredit: body.isCredit === true,
+    isManual: body.isManual === true,
+    userAliasId,
+    syncedAt: FieldValue.serverTimestamp(),
+  });
+}
+
 export const health = onRequest((req, res) => {
   res.status(200).json({ ok: true, service: 'moneypulse-web-functions' });
 });
@@ -122,6 +229,27 @@ export const ingestSyncEvent = onRequest(
       }
 
       throw error;
+    }
+
+    // Fan-out: project events into queryable collections.
+    // Uses Firebase Admin SDK so Firestore rules are bypassed (server-side write).
+    if (req.body.eventType === 'category.projected.v1') {
+      await fanOutCategory(db, req.body);
+    } else if (req.body.eventType === 'budget.projected.v1') {
+      await fanOutBudget(db, req.body);
+    } else if (req.body.eventType === 'ai.metrics.projected.v1') {
+      await fanOutAiMetrics(db, req.body);
+    } else if (req.body.eventType === 'notification.projected.v1') {
+      await fanOutNotification(db, req.body);
+    } else if (req.body.eventType === 'transaction.projected.v1') {
+      await fanOutTransaction(db, req.body);
+      const uid = typeof req.body.userAliasId === 'string' ? req.body.userAliasId : null;
+      if (uid) {
+        await db.collection('users').doc(uid).set(
+          { lastSyncAt: FieldValue.serverTimestamp() },
+          { merge: true },
+        );
+      }
     }
 
     res.status(202).json({
