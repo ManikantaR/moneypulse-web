@@ -1,6 +1,6 @@
 /**
  * Pure-TypeScript model of the Firestore security rule predicates defined in
- * firestore.rules.  These functions mirror each `allow` condition exactly so
+ * firestore.rules. These functions mirror each `allow` condition exactly so
  * that the security invariants can be validated in unit tests without running
  * the Firebase Emulator.
  *
@@ -17,15 +17,9 @@ export interface ResourceData {
 }
 
 // ---------------------------------------------------------------------------
-// /users/{userAliasId}
+// /users/{userAliasId}  — root document
 // ---------------------------------------------------------------------------
 
-/**
- * Predicate for:
- *   match /users/{userAliasId} {
- *     allow read, write: if request.auth != null && request.auth.uid == userAliasId;
- *   }
- */
 export function canReadWriteUserDoc(
   auth: AuthContext | null,
   userAliasId: string,
@@ -34,15 +28,11 @@ export function canReadWriteUserDoc(
 }
 
 // ---------------------------------------------------------------------------
-// /users/{userAliasId}/{document=**}
+// /users/{userAliasId}/overlays/{overlayId}
+// /users/{userAliasId}/deviceTokens/{tokenId}
+// (same predicate — own UID read/write)
 // ---------------------------------------------------------------------------
 
-/**
- * Predicate for:
- *   match /users/{userAliasId}/{document=**} {
- *     allow read, write: if request.auth != null && request.auth.uid == userAliasId;
- *   }
- */
 export function canReadWriteUserSubCollection(
   auth: AuthContext | null,
   userAliasId: string,
@@ -51,17 +41,38 @@ export function canReadWriteUserSubCollection(
 }
 
 // ---------------------------------------------------------------------------
+// /users/{userAliasId}/notifications/{notifId}
+// ---------------------------------------------------------------------------
+
+export function canReadNotification(
+  auth: AuthContext | null,
+  userAliasId: string,
+): boolean {
+  return auth !== null && auth.uid === userAliasId;
+}
+
+/** Only the isRead field may be changed; no other field mutations allowed. */
+export function canUpdateNotification(
+  auth: AuthContext | null,
+  userAliasId: string,
+  affectedKeys: string[],
+): boolean {
+  return (
+    auth !== null &&
+    auth.uid === userAliasId &&
+    affectedKeys.length > 0 &&
+    affectedKeys.every((k) => k === 'isRead')
+  );
+}
+
+export function canCreateOrDeleteNotification(): boolean {
+  return false;
+}
+
+// ---------------------------------------------------------------------------
 // /syncIngressEvents/{eventId}
 // ---------------------------------------------------------------------------
 
-/**
- * Predicate for:
- *   match /syncIngressEvents/{eventId} {
- *     allow read: if request.auth != null
- *                 && ('userAliasId' in resource.data)
- *                 && resource.data.userAliasId == request.auth.uid;
- *   }
- */
 export function canReadSyncIngressEvent(
   auth: AuthContext | null,
   resourceData: ResourceData,
@@ -73,12 +84,39 @@ export function canReadSyncIngressEvent(
   );
 }
 
-/**
- * Predicate for:
- *   match /syncIngressEvents/{eventId} {
- *     allow write: if false;
- *   }
- */
 export function canWriteSyncIngressEvent(): boolean {
+  return false;
+}
+
+// ---------------------------------------------------------------------------
+// /transactions/{txnId}
+// /categories/{catId}
+// /budgets/{budgetDocId}
+// (same predicate — read if userAliasId field matches uid; never write)
+// ---------------------------------------------------------------------------
+
+export function canReadProjectedDoc(
+  auth: AuthContext | null,
+  resourceData: ResourceData,
+): boolean {
+  return auth !== null && resourceData['userAliasId'] === auth.uid;
+}
+
+export function canWriteProjectedDoc(): boolean {
+  return false;
+}
+
+// ---------------------------------------------------------------------------
+// /aiMetrics/{userAliasId}
+// ---------------------------------------------------------------------------
+
+export function canReadAiMetrics(
+  auth: AuthContext | null,
+  userAliasId: string,
+): boolean {
+  return auth !== null && auth.uid === userAliasId;
+}
+
+export function canWriteAiMetrics(): boolean {
   return false;
 }
