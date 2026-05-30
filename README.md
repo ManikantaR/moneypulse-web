@@ -18,8 +18,19 @@ Cloud-hosted companion app for MoneyPulse with strict data boundary:
 | 4 | Aggregate AI insights (model health, latency, PII rate) | ✅ Done |
 | 5 | Notifications and web push (FCM) | ✅ Done |
 | 6 | Hardening, abuse tests, launch readiness | ✅ Done |
+| 7+ | Phase 10 feature enhancements (web companion portions) | 🚧 Planned |
 
-→ Full phase specs: [specs/](specs/)
+→ Full phase specs: [specs/](specs/)  
+→ Phase 10 feature spec: see `PHASE10-FEATURES-SPEC.md` in the companion MyMoney repo
+
+### Phase 10 Web Companion Features (projected from local sync)
+- Credit card payment monthly table (dashboard)
+- Recurring bill status page (read-only projection from local sync)
+- Spending anomaly notifications via FCM push
+- Budget vs. actual progress (read-only projection)
+- Missed bill payment alerts via FCM
+- Weekly/monthly financial digest push notifications
+- Cash flow forecast view
 
 ## Core Principles
 
