@@ -35,7 +35,7 @@ export default function BudgetsPage() {
   // Compute spend per category for current month
   const spendMap = new Map<string, number>();
   for (const txn of transactions) {
-    if (txn.isCredit || !txn.categoryId) continue;
+    if (txn.isCredit || txn.isTransfer || !txn.categoryId) continue;
     spendMap.set(txn.categoryId, (spendMap.get(txn.categoryId) ?? 0) + txn.amountCents);
   }
 

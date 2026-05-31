@@ -48,10 +48,11 @@ export function useKpis(monthYear: string): KpiResult {
   });
 
   const transactions = data ?? [];
-  const income = transactions
+  const spendable = transactions.filter((t) => !t.isTransfer);
+  const income = spendable
     .filter((t) => t.isCredit)
     .reduce((sum, t) => sum + t.amountCents, 0);
-  const expenses = transactions
+  const expenses = spendable
     .filter((t) => !t.isCredit)
     .reduce((sum, t) => sum + t.amountCents, 0);
 

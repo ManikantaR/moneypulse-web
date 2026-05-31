@@ -44,7 +44,7 @@ export default function CategoriesPage() {
   // whose category hasn't synced yet) are coalesced into the null/"Uncategorized" bucket.
   const totals = new Map<string | null, number>();
   for (const txn of transactions) {
-    if (txn.isCredit) continue;
+    if (txn.isCredit || txn.isTransfer) continue;
     const resolved = txn.categoryId && catMap.has(txn.categoryId) ? txn.categoryId : null;
     totals.set(resolved, (totals.get(resolved) ?? 0) + txn.amountCents);
   }

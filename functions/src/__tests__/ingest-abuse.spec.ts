@@ -241,4 +241,35 @@ describe('ingestSyncEvent — abuse and rejection paths', () => {
     await capturedHandler(mockReq('POST', body, makeHeaders(body)), res);
     expect(res.statusCode).toBe(202);
   });
+
+  it('persists isTransfer=true when transaction body includes isTransfer:true', async () => {
+    const body = { ...makeBody(), isTransfer: true };
+    const res = mockRes();
+    mockCreate.mockResolvedValue(undefined);
+    await capturedHandler(mockReq('POST', body, makeHeaders(body)), res);
+    expect(res.statusCode).toBe(202);
+    // The first mockSet call is the transaction fan-out doc
+    const txnSetCall = mockSet.mock.calls[0] as [Record<string, unknown>];
+    expect(txnSetCall[0].isTransfer).toBe(true);
+  });
+
+  it('persists isTransfer=false when body has isTransfer:false', async () => {
+    const body = { ...makeBody(), isTransfer: false };
+    const res = mockRes();
+    mockCreate.mockResolvedValue(undefined);
+    await capturedHandler(mockReq('POST', body, makeHeaders(body)), res);
+    expect(res.statusCode).toBe(202);
+    const txnSetCall = mockSet.mock.calls[0] as [Record<string, unknown>];
+    expect(txnSetCall[0].isTransfer).toBe(false);
+  });
+
+  it('defaults isTransfer=false when field is absent from body', async () => {
+    const body = makeBody(); // no isTransfer field
+    const res = mockRes();
+    mockCreate.mockResolvedValue(undefined);
+    await capturedHandler(mockReq('POST', body, makeHeaders(body)), res);
+    expect(res.statusCode).toBe(202);
+    const txnSetCall = mockSet.mock.calls[0] as [Record<string, unknown>];
+    expect(txnSetCall[0].isTransfer).toBe(false);
+  });
 });

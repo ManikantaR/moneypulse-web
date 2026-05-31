@@ -13,7 +13,7 @@ function formatCents(cents: number): string {
 }
 
 export function SpendingByCategory({ transactions, categoryMap }: Props) {
-  const expenses = transactions.filter((t) => !t.isCredit);
+  const expenses = transactions.filter((t) => !t.isCredit && !t.isTransfer);
 
   if (expenses.length === 0) return null;
 

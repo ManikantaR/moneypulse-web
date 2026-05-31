@@ -24,7 +24,7 @@ vi.mock('firebase/firestore', () => ({
 
 import { useKpis } from '@/lib/queries/use-kpis';
 
-function makeDoc(amountCents: number, isCredit: boolean) {
+function makeDoc(amountCents: number, isCredit: boolean, isTransfer?: boolean) {
   return {
     id: String(Math.random()),
     data: () => ({
@@ -36,6 +36,7 @@ function makeDoc(amountCents: number, isCredit: boolean) {
       categoryId: null,
       isCredit,
       isManual: false,
+      ...(isTransfer !== undefined ? { isTransfer } : {}),
     }),
   };
 }
@@ -78,5 +79,40 @@ describe('useKpis', () => {
     const { result } = renderHook(() => useKpis('2026-04'), { wrapper });
     await waitFor(() => expect(result.current.isLoading).toBe(false));
     expect(result.current.isEmpty).toBe(true);
+  });
+
+  it('excludes transfer credits from income', async () => {
+    mockGetDocs.mockResolvedValueOnce({
+      docs: [
+        makeDoc(10000, true),           // $100 normal income — counted
+        makeDoc(5000, true, true),       // $50 transfer credit — excluded
+      ],
+    });
+    const { result } = renderHook(() => useKpis('2026-04'), { wrapper });
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
+    expect(result.current.income).toBe(10000);
+  });
+
+  it('excludes transfer expenses from expenses', async () => {
+    mockGetDocs.mockResolvedValueOnce({
+      docs: [
+        makeDoc(3000, false),            // $30 normal expense — counted
+        makeDoc(7000, false, true),      // $70 transfer expense — excluded
+      ],
+    });
+    const { result } = renderHook(() => useKpis('2026-04'), { wrapper });
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
+    expect(result.current.expenses).toBe(3000);
+  });
+
+  it('treats missing isTransfer field as not-transfer (included)', async () => {
+    mockGetDocs.mockResolvedValueOnce({
+      docs: [
+        makeDoc(8000, true),  // no isTransfer field — should be included
+      ],
+    });
+    const { result } = renderHook(() => useKpis('2026-04'), { wrapper });
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
+    expect(result.current.income).toBe(8000);
   });
 });

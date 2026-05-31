@@ -27,6 +27,7 @@ export interface TransactionDoc {
   merchantName: string | null;
   isCredit: boolean;
   isManual: boolean;
+  isTransfer?: boolean;
   userAliasId: string;
 }
 

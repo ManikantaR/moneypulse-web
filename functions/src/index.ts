@@ -171,6 +171,7 @@ async function fanOutTransaction(
     merchantName: typeof body.merchantName === 'string' ? body.merchantName : null,
     isCredit: body.isCredit === true,
     isManual: body.isManual === true,
+    isTransfer: body.isTransfer === true,
     userAliasId,
     syncedAt: FieldValue.serverTimestamp(),
   });
