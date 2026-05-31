@@ -1,12 +1,15 @@
 import { getApps, initializeApp } from 'firebase-admin/app';
 import { getFirestore, FieldValue } from 'firebase-admin/firestore';
+import { getMessaging } from 'firebase-admin/messaging';
 import { defineSecret } from 'firebase-functions/params';
 import { onRequest } from 'firebase-functions/v2/https';
+import { onDocumentCreated } from 'firebase-functions/v2/firestore';
 import {
   hashSyncPayload,
   verifySyncSignature,
   type SyncRequestHeaders,
 } from './sync/security.js';
+import { sendPushToUser } from './notifications/push.js';
 
 const syncSigningSecret = defineSecret('SYNC_SIGNING_SECRET');
 
@@ -16,6 +19,14 @@ function getDb() {
   }
 
   return getFirestore();
+}
+
+function getMsg() {
+  if (!getApps().length) {
+    initializeApp();
+  }
+
+  return getMessaging();
 }
 
 function getHeaderValue(value: string | string[] | undefined): string {
@@ -257,6 +268,39 @@ export const ingestSyncEvent = onRequest(
       duplicate: false,
       idempotencyKey: headers.idempotencyKey,
       payloadHash,
+    });
+  },
+);
+
+/**
+ * Firestore onCreate trigger — fires when fanOutNotification writes a new
+ * notification doc. Reads the user's device tokens and sends an FCM push.
+ *
+ * Uses onDocumentCreated so it only fires once per new doc (no double-send
+ * on idempotency replays, since .set() on an existing doc does not trigger
+ * onCreate).
+ */
+export const onNotificationCreated = onDocumentCreated(
+  {
+    document: 'users/{userAliasId}/notifications/{notificationId}',
+    region: 'us-east4',
+  },
+  async (event) => {
+    const snap = event.data;
+    if (!snap) return;
+
+    const data = snap.data();
+    if (!data) return;
+
+    const { userAliasId, notificationId } = event.params;
+    const title = typeof data.title === 'string' ? data.title : '';
+    const body = typeof data.body === 'string' ? data.body : '';
+    const type = typeof data.type === 'string' ? data.type : 'alert';
+
+    await sendPushToUser(getDb(), getMsg(), userAliasId, notificationId, {
+      title,
+      body,
+      type,
     });
   },
 );
