@@ -6,6 +6,8 @@ import { firebaseDb } from '@/lib/firebase';
 import { useAuth } from '@/lib/auth/use-auth';
 import type { TransactionDoc } from '@/lib/types/firestore';
 
+const REFRESH_INTERVAL_MS = 30_000;
+
 export interface KpiResult {
   income: number;
   expenses: number;
@@ -29,6 +31,8 @@ export function useKpis(monthYear: string): KpiResult {
   const { data, isLoading, isError } = useQuery({
     queryKey: ['kpis', uid, monthYear],
     enabled: !!uid,
+    refetchInterval: REFRESH_INTERVAL_MS,
+    refetchOnWindowFocus: true,
     queryFn: async (): Promise<TransactionDoc[]> => {
       if (!uid) return [];
       const db = firebaseDb();
@@ -48,7 +52,10 @@ export function useKpis(monthYear: string): KpiResult {
   });
 
   const transactions = data ?? [];
-  const spendable = transactions.filter((t) => !t.isTransfer);
+  // Exclude transfers (non-spend) and split parents (double-count vs children). #89
+  const spendable = transactions.filter(
+    (t) => !t.isTransfer && t.isSplitParent !== true,
+  );
   const income = spendable
     .filter((t) => t.isCredit)
     .reduce((sum, t) => sum + t.amountCents, 0);
