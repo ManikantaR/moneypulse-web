@@ -24,7 +24,12 @@ vi.mock('firebase/firestore', () => ({
 
 import { useKpis } from '@/lib/queries/use-kpis';
 
-function makeDoc(amountCents: number, isCredit: boolean, isTransfer?: boolean) {
+function makeDoc(
+  amountCents: number,
+  isCredit: boolean,
+  isTransfer?: boolean,
+  isSplitParent?: boolean,
+) {
   return {
     id: String(Math.random()),
     data: () => ({
@@ -37,6 +42,7 @@ function makeDoc(amountCents: number, isCredit: boolean, isTransfer?: boolean) {
       isCredit,
       isManual: false,
       ...(isTransfer !== undefined ? { isTransfer } : {}),
+      ...(isSplitParent !== undefined ? { isSplitParent } : {}),
     }),
   };
 }
@@ -103,6 +109,18 @@ describe('useKpis', () => {
     const { result } = renderHook(() => useKpis('2026-04'), { wrapper });
     await waitFor(() => expect(result.current.isLoading).toBe(false));
     expect(result.current.expenses).toBe(3000);
+  });
+
+  it('excludes split parents so their children are not double-counted (#89)', async () => {
+    mockGetDocs.mockResolvedValueOnce({
+      docs: [
+        makeDoc(9000, false, false, true),  // $90 split parent — excluded
+        makeDoc(4000, false),               // $40 child/normal — counted
+      ],
+    });
+    const { result } = renderHook(() => useKpis('2026-04'), { wrapper });
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
+    expect(result.current.expenses).toBe(4000);
   });
 
   it('treats missing isTransfer field as not-transfer (included)', async () => {

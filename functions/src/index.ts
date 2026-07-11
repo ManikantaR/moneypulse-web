@@ -172,6 +172,7 @@ async function fanOutTransaction(
     isCredit: body.isCredit === true,
     isManual: body.isManual === true,
     isTransfer: body.isTransfer === true,
+    isSplitParent: body.isSplitParent === true,
     userAliasId,
     syncedAt: FieldValue.serverTimestamp(),
   });

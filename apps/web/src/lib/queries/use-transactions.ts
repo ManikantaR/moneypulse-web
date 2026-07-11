@@ -13,6 +13,8 @@ import { firebaseDb } from '@/lib/firebase';
 import { useAuth } from '@/lib/auth/use-auth';
 import type { TransactionDoc } from '@/lib/types/firestore';
 
+const REFRESH_INTERVAL_MS = 30_000;
+
 export interface TransactionFilters {
   categoryId?: string;
   isCredit?: boolean;
@@ -27,6 +29,8 @@ export function useTransactions(filters?: TransactionFilters) {
   return useQuery({
     queryKey: ['transactions', uid, filters ?? {}],
     enabled: !!uid,
+    refetchInterval: REFRESH_INTERVAL_MS,
+    refetchOnWindowFocus: true,
     queryFn: async (): Promise<TransactionDoc[]> => {
       if (!uid) return [];
 
@@ -53,10 +57,15 @@ export function useTransactions(filters?: TransactionFilters) {
       const q = query(collection(db, 'transactions'), ...constraints);
       const snapshot = await getDocs(q);
 
-      return snapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...(doc.data() as Omit<TransactionDoc, 'id'>),
-      }));
+      return snapshot.docs
+        .map((doc) => ({
+          id: doc.id,
+          ...(doc.data() as Omit<TransactionDoc, 'id'>),
+        }))
+        // Exclude split parents: their child transactions carry the real
+        // amounts/categories, so counting the parent too would double-count.
+        // Filtered client-side so legacy docs without the field still show. #89
+        .filter((txn) => txn.isSplitParent !== true);
     },
     select: (data) => data,
   });

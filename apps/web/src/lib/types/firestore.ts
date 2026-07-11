@@ -28,6 +28,7 @@ export interface TransactionDoc {
   isCredit: boolean;
   isManual: boolean;
   isTransfer?: boolean;
+  isSplitParent?: boolean;
   userAliasId: string;
 }
 
