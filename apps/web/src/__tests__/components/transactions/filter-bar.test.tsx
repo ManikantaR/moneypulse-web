@@ -48,7 +48,7 @@ describe('FilterBar', () => {
     const onChange = vi.fn();
     render(<FilterBar onFilterChange={onChange} />);
     fireEvent.click(screen.getByText('This month'));
-    const [filters, preset] = onChange.mock.calls[0];
+    const [filters, preset] = onChange.mock.calls[0]!;
     expect(preset).toBe('this-month');
     expect(filters.startDate).toMatch(/^\d{4}-\d{2}-01$/);
     expect(filters.endDate).toMatch(/^\d{4}-\d{2}-\d{2}$/);
@@ -58,7 +58,7 @@ describe('FilterBar', () => {
     const onChange = vi.fn();
     render(<FilterBar onFilterChange={onChange} />);
     fireEvent.click(screen.getByText('Last month'));
-    const [filters, preset] = onChange.mock.calls[0];
+    const [filters, preset] = onChange.mock.calls[0]!;
     expect(preset).toBe('last-month');
     expect(filters.startDate).toMatch(/^\d{4}-\d{2}-01$/);
   });

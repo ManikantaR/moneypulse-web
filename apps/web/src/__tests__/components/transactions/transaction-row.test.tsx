@@ -15,6 +15,7 @@ const baseTransaction: TransactionDoc = {
   amountCents: 4500,
   date: '2026-04-15',
   categoryId: 'groceries',
+  merchantName: 'Test Merchant',
   isCredit: false,
   isManual: false,
   userAliasId: 'user-alias-1',

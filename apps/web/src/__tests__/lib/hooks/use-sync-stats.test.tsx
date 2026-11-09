@@ -111,7 +111,7 @@ describe('useSyncStats', () => {
     await waitFor(() => expect(result.current.isLoading).toBe(false));
 
     expect(result.current.data?.recentAuditLogs).toHaveLength(1);
-    expect(result.current.data?.recentAuditLogs[0].httpStatus).toBe(200);
+    expect(result.current.data?.recentAuditLogs[0]?.httpStatus).toBe(200);
   });
 
   it('calls the correct endpoint URL', async () => {
@@ -123,7 +123,7 @@ describe('useSyncStats', () => {
     renderHook(() => useSyncStats(), { wrapper });
     await waitFor(() => expect(mockFetch).toHaveBeenCalled());
 
-    const calledUrl: string = mockFetch.mock.calls[0][0];
+    const calledUrl: string = mockFetch.mock.calls[0]![0];
     expect(calledUrl).toContain('/sync/stats');
   });
 });
