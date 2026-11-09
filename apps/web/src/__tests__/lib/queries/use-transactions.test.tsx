@@ -57,8 +57,8 @@ describe('useTransactionsResult', () => {
     const { result } = renderHook(() => useTransactionsResult(), { wrapper });
     await waitFor(() => expect(result.current.isLoading).toBe(false));
     expect(result.current.data).toHaveLength(1);
-    expect(result.current.data[0].id).toBe('txn-1');
-    expect(result.current.data[0].amountCents).toBe(5000);
+    expect(result.current.data![0]!.id).toBe('txn-1');
+    expect(result.current.data![0]!.amountCents).toBe(5000);
   });
 
   it('marks isEmpty when no results', async () => {
